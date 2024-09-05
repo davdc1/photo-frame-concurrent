@@ -1,0 +1,239 @@
+// .frame-wrapper {
+//     width: 100vw;
+//     height: 100vh;
+
+//     display: flex;
+//     justify-content: center;
+
+//     // .frame-data {
+//     //     width: 300px;
+//     // }
+
+//     .frame-image {
+//         height: 100%;
+//         // align-self: stretch;
+//         &.opaque {
+//             opacity: 1;
+//             transition: opacity 1s linear;
+//         }
+
+//         &.transp {
+//             opacity: 0;
+//             transition: opacity 1s linear;
+//         }
+//     }
+
+//     .frame-buttons {
+        
+//     }
+
+//     .frame-keys-container {
+//         position: absolute;
+//         bottom: 100px;
+//         right: calc(50% - 50px);
+//         z-index: 10;
+//         .go-button {
+//             color: rgb(71, 67, 67);
+//         }
+//     }
+
+
+
+
+//     // test:
+//     .overflow-container {
+//         width: 100%;
+//         height: 100%;
+
+//         overflow-x: hidden;
+
+//         position: relative;
+//         .slider {
+//             display: flex;
+//             flex-direction: row-reverse;
+//             height: 100%;
+
+//             position: absolute;
+
+//             .img-wrapper {
+//                 width: 100vw;
+//                 height: 100vh;
+//                 @keyframes comeIn {
+//                     from {
+//                       opacity: 0
+//                     }
+                  
+//                     to {
+//                       opacity: 1;
+//                     }
+//                   }
+
+//                 &.in {
+//                     animation: comeIn 1s forwards;
+//                 }
+
+//                 &.out {
+//                     opacity: 0;
+//                     transition: opacity 1s linear;
+//                 }
+//                 .test-image {
+//                     height: 100%;
+
+
+//                 }
+//             }
+
+//         }
+
+//     }
+
+
+
+
+
+// }
+
+
+
+
+
+
+
+.frame-wrapper {
+
+    // height: 100vh;
+    // width: 100vw;
+
+    // display: flex;
+    // justify-content: center;
+    // align-items: center;
+
+
+    .container {
+
+        background-color: rgb(35, 35, 35);
+
+        .image-wrapper-type-3 {
+
+            height: 100vh;
+            width: 100vw;
+            background-color: rgb(35, 35, 35);
+
+            display: flex;
+            justify-content: center;
+            
+            // .temp-image-text {
+            //     position: absolute;
+            //     top: 50%;
+            //     right: 50%;
+            //     color: black;
+            //     font-size: 48px;
+            //     font-weight: 600;
+            // }
+
+            .image-type-3 {
+                height: 100%;
+                background-color: rgb(35, 35, 35);
+            }
+
+            &.first {
+                z-index: 2;
+
+                &:not(.fade-out) {
+                    opacity: 1;
+                }
+            }
+
+            &.second {
+                
+                position: absolute;
+                top: 0;
+                
+                z-index: 1;
+                opacity: 0;
+            }
+
+            &.fade-in {
+                animation: fadeIn 1200ms forwards;
+                animation-delay: 1500ms;
+            }
+
+            &.fade-out {
+                animation: fadeOut 1s forwards;
+            }
+
+
+
+
+            &.slide-in {
+                animation: slideIn 1s ease-in forwards;
+                animation-delay: 900ms;
+            }
+
+            &.slide-out {
+                transform: translateX(110%);
+                transition: all ease-in 1s;
+            }
+
+
+
+            @keyframes fadeIn {
+                0% {
+                  opacity: 0
+                }
+
+                100% {
+                  opacity: 1;
+                }
+              }
+
+            @keyframes fadeOut {
+                0% {
+                    opacity: 1
+                }
+
+                100% {
+                    opacity: 0;
+                }
+            }
+
+            @keyframes slideIn {
+                0% {
+                    opacity: 1;
+                    transform: translateX(-100%);
+                }
+                100% {
+                    opacity: 1;
+                    transform: translateX(0%);
+                }
+            }
+
+        }
+    }
+
+    .frame-key-container {
+        position: absolute;
+        bottom: 100px;
+        right: calc(50% - 50px);
+        z-index: 10;
+        .go-button {
+            color: rgb(71, 67, 67);
+        }
+    }
+
+    .empty-que-spinner {
+        position: absolute;
+        z-index: 3;
+
+        width: 5%;
+        top: 47.5%;
+        left: 47.5%;
+
+        @media screen and (max-width: 700px) {
+            width: 10%;
+            top: 45%;
+            left: 45%;
+        }
+    }
+
+}

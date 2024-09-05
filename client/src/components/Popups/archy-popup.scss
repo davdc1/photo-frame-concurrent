@@ -1,0 +1,25 @@
+.archy-popup-wrapper {
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgba(122, 155, 197, 0.103);
+    backdrop-filter: blur(5px);
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+
+    
+    .popup-box {
+        
+        background-color: white;
+        border-radius: 20px;
+        box-shadow: 0 0 23px 5px rgb(197 200 220);
+
+    }
+}

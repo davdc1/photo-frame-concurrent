@@ -1,0 +1,53 @@
+.upload-done-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+
+    width: 40dvw;
+    height: 37dvh;
+
+    // .upload-done-title {
+
+    // }
+
+    // .upload-done-line {
+
+    // }
+
+    .upload-done-button-container {
+        display: flex;
+        // .upload-done-again {
+
+        // }
+
+        // .upload-done-finish {
+
+        // }
+    }
+
+
+}
+
+
+@media screen and (max-width: 600px) {
+    .upload-done-wrapper {
+        
+        width: 90dvw;
+        height: 60dvh;
+    
+        // .upload-done-title {
+        // }
+    
+        // .upload-done-line {
+        // }
+    
+        // .upload-done-button-container {
+        //     .upload-done-again {
+        //     }
+        //     .upload-done-finish {
+        //     }
+        // }
+    
+    }
+}

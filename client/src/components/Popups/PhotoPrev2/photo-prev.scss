@@ -1,0 +1,42 @@
+.photo-prev-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    // max-width: 60%;
+    // max-height: 90%;
+
+    max-width: 60dvw;
+    max-height: 90dvh;
+
+    border: solid rgb(179, 164, 164) 1px;
+    border-radius: 3%;
+
+    background-color: rgb(35, 35, 35);
+
+    .photo-prev-spinner {
+        width: 40px;
+        padding: 40px;
+    }
+
+    .photo-prev-photo {
+        width: 100%;
+        border-radius: 20px; // probably not the right unit
+        display: none;
+
+        &.ready {
+            display: inline-block;
+        }
+
+    }
+}
+
+
+@media screen and (max-width: 700px) {
+    
+    .photo-prev-container {
+        // max-width: 95%;
+        max-width: 95dvw;
+    }
+    
+}

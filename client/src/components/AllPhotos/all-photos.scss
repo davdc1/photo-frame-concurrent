@@ -1,0 +1,21 @@
+.all-photos-wrapper {
+    .all-photos-top-row {
+        display: flex;
+        .all-photos-actions {
+            width: 200px;
+        }
+    }
+
+    .all-photos-list {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .all-photos-pagination {
+        margin-top: 30px;
+    }
+}
+
+// @media screen and (max-width: 600px) {
+    
+// }

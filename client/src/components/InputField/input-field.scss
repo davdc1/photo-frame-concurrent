@@ -1,0 +1,31 @@
+.input-field-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    .input-field-label {
+        font-size: 16px;
+        margin-left: 15px;
+        color: #565656d0;
+    }
+    .input-field-container {
+        margin-top: 13px;
+
+        height: 38px;
+        width: 100%;
+        border-radius: 19px;
+        box-shadow: 0 0 20px 0 rgba(107, 107, 147, 0.787);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        input {
+            border: none;
+            outline: none;
+            padding: 3px 16px;
+            height: 28px;
+            width: 95%;
+            border-radius: 19px;
+            color: #565656d0;
+        }
+    }
+}

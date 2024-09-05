@@ -1,0 +1,93 @@
+.playlist-popup-wrapper {
+    width: 40vw;
+    height: 35vw;
+
+    display: flex;
+    flex-direction: column;
+
+    background-color: white;
+
+    border-radius: 20px;
+
+    padding: 0 3rem;
+
+    .playlist-popup-title {
+        margin-top: 3rem;
+    }
+
+    .playlist-popup-list {
+        margin-top: 2rem;
+        height: 30%;
+        overflow-y: auto;
+        border: dashed gray 1px;
+        border-radius: 1rem;
+        padding: 0.5rem 0;
+        .playlist-popup-list-item {
+            height: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+
+            .playlist-popup-remove-btn {
+                width: 1.2rem;
+                height: 1.2rem;
+                // padding: 0;
+                // margin: 0;
+                background-color: rgb(207, 68, 29);
+                border-radius: 0.6rem;
+                text-align: center;
+                cursor: pointer;
+                box-shadow: 0 0 1px 1px rgb(68, 10, 10);
+                // &:hover {
+                //     scale: 1.05;
+                // }
+            }
+        }
+    }
+
+    .playlist-popup-select {
+        margin-top: 2rem;
+        .playlist-popup-select-top {
+            height: 2.5rem;
+            border-radius: 1.5rem;
+            border: black solid 1px;
+            background-color: white;
+            padding: 0 5%;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .playlist-popup-select-bottom {
+            max-height: 0;
+            overflow-y: auto;
+            border-radius: 1.5rem;
+            border: black solid 1px;
+            background-color: white;
+            padding: 0 5%;
+            visibility: hidden;
+
+            transition: max-height 1s ease;
+            &.opened {
+                visibility: visible;
+                max-height: 9rem;
+
+                transition: max-height 1s ease;
+            }
+
+
+            .playlist-popup-select-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                height: 2rem;
+                .playlist-popup-select-add-btn {
+                    cursor: pointer;
+
+                }
+            }
+        }
+    }
+
+    
+}

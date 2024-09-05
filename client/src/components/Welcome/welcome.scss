@@ -1,0 +1,32 @@
+.welcome-wrapper {
+    width: calc(100dvw - 200px);
+    height: calc(100dvh - 200px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    padding: 100px;
+    .welcome-box {
+        width: 100%;
+        height: 100%;
+        margin: 100px 30px;
+        border: solid #1d0080 2px;
+        border-radius: 24px;
+        background-color: rgb(241, 245, 249);
+        box-shadow: 0 0 30px 4px rgb(31, 49, 70);
+
+        display: flex;
+        justify-content: center;
+
+        position: relative;
+        .welcome-title-container {
+            position: absolute;
+            top: 100px;
+            .welcome-title {
+                color: rgb(52, 13, 13);
+                font-size: 40px;
+            }
+        }
+    }
+}

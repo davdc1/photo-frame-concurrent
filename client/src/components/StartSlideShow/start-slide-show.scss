@@ -1,0 +1,305 @@
+// .start-show-wrapper {
+//     width: 100dvw;
+//     height: 100dvh;
+
+//     display: flex;
+//     flex-direction: column;
+
+//     align-items: center;
+
+    
+
+//     .start-show-title {
+//         font-size: x-large;
+//         margin-top: 10%;
+//     }
+
+//     .start-show-spinner {
+//         margin: auto 0 0 auto;
+//         width: 20%;
+//     }
+
+//     .start-show-body {
+
+//         display: flex;
+//         flex-direction: column;
+//         align-items: center;
+//         margin-top: 5%;
+
+//         .start-show-text-1 {
+
+//         }
+
+//         .start-show-text-2 {
+//             align-self: center;
+//         }
+
+//         .start-show-prompt {
+
+//         }
+
+//         .start-show-buttons {
+//             display: flex;
+//             flex-direction: column;
+//             .start-show-button-top {
+//                 display: flex;
+//                 flex-direction: column;
+//                 align-items: center;
+//                 .start-show-or {
+
+//                 }
+//             }
+
+//             .start-show-button-bottom {
+
+//             }
+
+//             .start-show-button {
+//                 .resume {
+
+//                 }
+//                 .all_photos {
+
+//                 }
+//                 .playlist {
+
+//                 }
+//             }
+//         }
+//     }
+// }
+
+
+
+
+
+
+
+// GPT v1
+// .start-show-wrapper {
+//     width: 100vw;
+//     height: 100vh;
+//     display: flex;
+//     flex-direction: column;
+//     align-items: center;
+//     justify-content: center;
+//     background-color: #f0f0f0;
+//     padding: 2rem;
+
+//     .start-show-title {
+//         font-size: 2rem;
+//         margin-top: 2rem;
+//         color: #333;
+//         font-weight: bold;
+//     }
+
+//     .start-show-spinner {
+//         margin-top: 2rem;
+//         width: 50px;
+//         height: 50px;
+//     }
+
+//     .start-show-body {
+//         display: flex;
+//         flex-direction: column;
+//         align-items: center;
+//         margin-top: 2rem;
+//         width: 80%;
+//         background: #fff;
+//         padding: 1.5rem;
+//         border-radius: 0.5rem;
+//         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+//         .start-show-text-1, .start-show-text-2 {
+//             font-size: 1.25rem;
+//             color: #666;
+//             margin-bottom: 1rem;
+//         }
+
+//         .start-show-prompt {
+//             font-size: 1.1rem;
+//             color: #333;
+//             margin-bottom: 1.5rem;
+//         }
+
+//         .start-show-buttons {
+//             display: flex;
+//             flex-direction: column;
+//             width: 100%;
+
+//             .start-show-button-top {
+//                 display: flex;
+//                 flex-direction: row;
+//                 align-items: center;
+//                 justify-content: center;
+//                 margin-bottom: 1rem;
+
+//                 .start-show-or {
+//                     font-size: 1rem;
+//                     color: #999;
+//                     margin: 0 1rem;
+//                 }
+//             }
+
+//             .start-show-button-bottom {
+//                 display: flex;
+//                 flex-direction: column;
+//                 gap: 1rem;
+
+//                 .start-show-button {
+//                     padding: 0.75rem 1.5rem;
+//                     font-size: 1rem;
+//                     color: #fff;
+//                     background-color: #007bff;
+//                     border: none;
+//                     border-radius: 0.25rem;
+//                     cursor: pointer;
+//                     transition: background-color 0.3s;
+
+//                     &:hover {
+//                         background-color: #0056b3;
+//                     }
+
+//                     &.resume {
+//                         background-color: #28a745;
+
+//                         &:hover {
+//                             background-color: #218838;
+//                         }
+//                     }
+
+//                     &.all_photos {
+//                         background-color: #17a2b8;
+
+//                         &:hover {
+//                             background-color: #138496;
+//                         }
+//                     }
+
+//                     &.playlist {
+//                         background-color: #ffc107;
+
+//                         &:hover {
+//                             background-color: #e0a800;
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
+
+
+
+// GPT v2
+.start-show-wrapper {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #ecf0f1;
+    font-family: 'Helvetica Neue', sans-serif;
+    padding: 1rem;
+
+    .start-show-title {
+        font-size: 2rem;
+        color: #2c3e50;
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+    .start-show-spinner {
+        margin: 2rem 0;
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .start-show-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 2rem;
+        width: 90%;
+        max-width: 600px;
+        background: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+        .start-show-text-1, .start-show-text-2 {
+            font-size: 1.25rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .start-show-prompt {
+            font-size: 1rem;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .start-show-buttons {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+
+            .start-show-button-top {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 1rem;
+
+                .start-show-or {
+                    font-size: 1rem;
+                    color: #2c3e50;
+                    margin: 0 1rem;
+                }
+            }
+
+            .start-show-button-bottom {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+
+                .start-show-button {
+                    padding: 0.75rem 1.5rem;
+                    font-size: 1rem;
+                    color: #fff;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: background-color 0.3s;
+
+                    &.resume {
+                        background-color: #2ecc71;
+
+                        &:hover {
+                            background-color: darken(#2ecc71, 10%);
+                        }
+                    }
+
+                    &.all_photos {
+                        background-color: #3498db;
+
+                        &:hover {
+                            background-color: darken(#3498db, 10%);
+                        }
+                    }
+
+                    &.playlist {
+                        background-color: #e74c3c;
+
+                        &:hover {
+                            background-color: darken(#e74c3c, 10%);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
