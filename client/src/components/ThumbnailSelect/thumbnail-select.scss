@@ -13,10 +13,10 @@
 
     &:hover:not(.disabled) {
         cursor: pointer;
-        .thumbnail-select-img {
-            scale: 1.05;
-            transition: scale ease 200ms;
-        }
+        // .thumbnail-select-img {
+        //     scale: 1.05;
+        //     transition: scale ease 200ms;
+        // }
 
     }
     .thumbnail-select-img-container {

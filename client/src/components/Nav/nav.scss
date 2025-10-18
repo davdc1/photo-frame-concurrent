@@ -1,0 +1,130 @@
+.navburger {
+    
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    height: 30px;
+    position: fixed;
+    top: 3mm;
+    left: 3mm;
+    z-index: 10;
+    
+    span {
+        width: 32px;
+        border-bottom: solid black 2px;
+    }
+
+    &.visible {
+        display: flex;
+    }
+}
+
+.side-nav-overlay {
+
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 11;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(3px);
+    background-color: transparent;
+
+    
+    &.unshow {
+
+        // animation: disappear 0.1s ease-in-out forwards;
+        // animation-delay: 0.4s;
+    
+        // @keyframes disappear {
+        //     0% {
+        //         display: block;
+        //     }
+        //     100% {
+        //         display: none;
+        //     }
+        // }
+
+
+        // TEMP FIX. 
+        // closing of side nav is not animated
+
+        display: none;
+    }
+
+    &.show {
+        display: block;
+
+        .side-nav-list.opened {
+
+            animation: slide-in 0.5s ease-in-out;
+
+            @keyframes slide-in {
+                0% {
+                    translate: -100%;
+                }
+                100% {
+                    translate: 0;
+                }
+            }
+        }
+    }
+
+
+
+    
+    .side-nav-list {
+        border: solid 1px;
+        background-color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+
+        min-width: 54%;
+        height: 99% ;
+        position: absolute;
+        left: 0;
+
+
+        animation: slide-out 0.4s ease-in-out forwards;
+
+            @keyframes slide-out {
+                0% {
+                    translate: 0;
+                }
+                100% {
+                    translate: -100%;
+                }
+            }
+        
+
+
+        .side-nav-close {
+            align-self: flex-end;
+
+            background: none;
+            border: none;
+            outline: none;
+            font-size: 38px;
+            rotate: 45deg;
+            padding: 0;
+            margin: -3px 8px 0 8px;
+        }
+        .nav-link {
+
+            // margin: 10px 0;
+            border-bottom: solid rgba(88, 88, 88, 0.734);
+            text-align: right;
+            padding: 10px 20px 10px 0;
+
+            &:last-of-type {
+                border-bottom: none;
+            }
+        }
+    }
+}
+
+
+

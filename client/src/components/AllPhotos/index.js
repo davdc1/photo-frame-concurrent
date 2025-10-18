@@ -15,16 +15,40 @@ const AllPhotos = () => {
     const [select, setSelect] = useState(false)
     const [selected, setSelected] = useState({})
     const [listLoading, setListLoading] = useState(false)
-    const [deleteLoading, setDeleteLoading] = useState(false)
+    const [actionLoading, setActionLoading] = useState(false)
+    const [userAlbums, setUserAlbums] = useState({ albums: [], loading: true })
 
     const { userInfo } = useContext(AuthContext)
     const { toggle } = useContext(PopupContext)
 
 
     useEffect(() => {
+        getUserAlbums(userInfo.id)
+    }, [])
+
+    useEffect(() => {
         getPhotos()
     }, [pagination.page])
 
+    const getUserAlbums = (userId) => {
+        
+        setUserAlbums((state) => {
+            photoService.getUserAlbums({ userId })
+            .then((res) => {
+                console.log('user albumds ', res.data);
+                const albums = res.data.map(({ name, id }) => ({ text: name, id }))
+                albums.unshift({ text: tempContent.AllPhotos_addToAlbum })
+                setUserAlbums({ albums, loading: false })
+            })
+            // .catch((error) => {
+            //     console.log('EEEERROROR', error);
+                
+            // })
+
+            return { albums: state.albums, loading: true }
+        })
+
+    }
 
     const getPhotos = () => {
         const { page, perPage } = pagination
@@ -71,7 +95,7 @@ const AllPhotos = () => {
             if (selected[id]) ids.push(id)
         })
 
-        setDeleteLoading(() => {
+        setActionLoading(() => {
             photoService.deletePhotos({ ids, user_id: userInfo.id })
             .then((res) => {
                 console.log('res delete photos', res);
@@ -82,11 +106,32 @@ const AllPhotos = () => {
                 console.log('delete photos', error);
             })
             .finally(() => {
-                setDeleteLoading(false)
+                setActionLoading(false)
             })
             return true
         })
         
+    }
+
+    const addToAlbum = (album) => {
+        let ids = []
+        Object.keys(selected).forEach((id) => {
+            if (selected[id]) ids.push(id)
+        })
+
+        setActionLoading(() => {
+            photoService.addPhotosToAlbum({ ids, user_id: userInfo.id, album_id: album.id })
+            .then((res) => {
+                console.log('res at addToAlbum', res.data);
+                hitSelect()
+            })
+            .catch((error) => {
+                console.log('error at addToAlbum', error);
+            })
+            .finally(() => setActionLoading(false))
+            return true
+        })
+
     }
 
     const tempContent = {
@@ -95,7 +140,8 @@ const AllPhotos = () => {
         AllPhotos_cancel: 'cancel',
         AllPhotos_delete: 'Delete',
         AllPhotos_actions: 'Actions',
-        AllPhotos_gettingList: 'getting photos'
+        AllPhotos_gettingList: 'getting photos',
+        AllPhotos_addToAlbum: 'Add photos to album'
     }
 
     const selectOptions = [
@@ -114,11 +160,17 @@ const AllPhotos = () => {
                 <button onClick={uploadPopup}>{tempContent.AllPhotos_add}</button>
                 <button onClick={hitSelect}>{select ? tempContent.AllPhotos_cancel : tempContent.AllPhotos_select}</button>
                 {Object.values(selected).find((v) => v === true) ?
-                    <div className='all-photos-actions'>
-                        <Select options={selectOptions} />
-                    </div> : ''}
+                    <>
+                        <div className='all-photos-actions'>
+                            <Select options={selectOptions} />
+                        </div>
 
-                {deleteLoading ?
+                        <div className='all-photos-select-album'>
+                            <Select options={userAlbums.albums} callback={addToAlbum} noSelect={true} />
+                        </div>
+                    </> : ''}
+
+                {actionLoading ?
                     <img src={spinner} /> : ''}
 
             </div>
@@ -128,8 +180,8 @@ const AllPhotos = () => {
                 {listLoading ? <span>{tempContent.AllPhotos_gettingList}</span> : ''}
                 
                 {select ?
-                    list.map((item, idx) => <ThumbnailSelect params={{ item, onSelectItem, selected, deleteLoading }} />) :
-                    list.map((item, idx) => <Thumbnail params={{ item }} />)}
+                    list.map((item, idx) => <ThumbnailSelect params={{ item, onSelectItem, selected, disable: actionLoading }} key={idx.toString()} />) :
+                    list.map((item, idx) => <Thumbnail params={{ item }} key={idx.toString()} />)}
 
             </div>
 

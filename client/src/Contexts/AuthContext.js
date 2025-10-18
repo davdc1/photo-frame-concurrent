@@ -18,7 +18,7 @@ export const AuthContext = createContext({
 export const AuthContextProvider = ({ children }) => {
 
     const [userInfo, setUserInfo] = useState(() => {
-        let storedInfo = JSON.parse(localStorage.getItem('frame_app_store' || '{}'))
+        let storedInfo = JSON.parse(localStorage.getItem('frame_app_store') || '{}')
         if (storedInfo?.id) return storedInfo
         else return (
             {

@@ -1,4 +1,5 @@
 import AddPhotosPopup from "./AddPhotos";
+import ConfirmPopup from "./Confirm";
 import PhotoPrev from "./PhotoPrev2";
 import PlayListPopup from "./PlayList";
 import UploadDone from "./UploadDone";
@@ -9,5 +10,6 @@ export default {
     PhotoPrev: <PhotoPrev />,
     AddPhotos: <AddPhotosPopup />,
     Upload: <UploadPopup />,
-    UploadDone: <UploadDone />
+    UploadDone: <UploadDone />,
+    Confirm: <ConfirmPopup />
 }

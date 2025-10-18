@@ -30,12 +30,9 @@ const UploadPopup = () => {
     }, [])
 
     const onFileLoad = ({ target }) => {
-        setLoading(() => {
-
-            loadFiles(target)
-            
-            return true
-        })
+        
+        loadFiles(target)
+        setLoading(true)
     }
 
     const loadFiles = async (target) => {
@@ -46,6 +43,8 @@ const UploadPopup = () => {
 
         let files = Array.from(target.files)
 
+        console.log('files', files);
+        
 
         for (const [idx, file] of files.entries()) {
             

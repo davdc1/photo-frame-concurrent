@@ -1,5 +1,4 @@
 import axios from "axios";
-const apiUrl = process.env.REACT_APP_API_URL
 
 export const photoService = {
   getPhotos: (payload) => axios.get(`/photos`, {
@@ -14,11 +13,13 @@ export const photoService = {
   getPhotopPrev: (payload) => axios.get(`/photos/prev`, { params: payload }),
   getUserPhotos: (payload) => axios.get(`/photos/thumbnails`, { params: payload }),
 
-  // seperate service file?
+  // album related. seperate service file?
   getUserAlbums: (payload) => axios.get('/albums', { params: payload }),
   getAlbumPhotos: (payload) => axios.get('/albums/album-photos', { params: payload }),
   uploadPhotos: (payload) => axios.post('/photos/upload-photos', payload),
   deleteFailedUpload: (payload) => axios.delete('/photos/failed-upload', { params: payload }),
   deletePhotos: (payload) => axios.delete('/photos/delete', { params: payload }),
+  addPhotosToAlbum: (payload) => axios.post('albums/add-to-album', payload),
+  changeAlbumPhotoOrder: (payload) => axios.post('albums/change-photo-order', payload)
     
 }

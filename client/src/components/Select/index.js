@@ -8,7 +8,7 @@ const Select = ({ options, noSelect, callback }) => {
 
     const onSelect = (option) => {
         if (option.optionCallback) option.optionCallback()
-        else if (noSelect) callback?.()
+        else if (noSelect) callback?.(option)
         else setSelected(option)
         toggle()
     }

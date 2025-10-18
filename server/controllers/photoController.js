@@ -773,7 +773,7 @@ const getNextAlbumPhoto = async ({ album_id, startAtOrder }) => {
                     fullRound = true
                     startAtOrder = 1
                 } else {
-                    stop = true
+                    stop = true // return null ?
                 }
             } else return nextPhoto
                     

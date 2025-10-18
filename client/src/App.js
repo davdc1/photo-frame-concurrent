@@ -4,10 +4,14 @@ import { AuthContext } from './Contexts/AuthContext';
 import MainRouter from './Routers/MainRouter';
 import setAxiosDefaults from './utils/serviceDefaults';
 import './App.scss';
+import Nav from './components/Nav';
+import { navLinks } from './utils/navLinks';
+import SideNav from './components/Nav';
 
 function App() {
 
   const { userInfo } = useContext(AuthContext)
+  
 
   useEffect(() => {
     setAxiosDefaults(userInfo.token)
@@ -28,7 +32,7 @@ function App() {
         {JSON.stringify(userInfo)}
       </div> */}
 
-
+        <SideNav links={navLinks}/>
         <MainRouter />
     </div>
   );

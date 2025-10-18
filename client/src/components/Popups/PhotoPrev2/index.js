@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from 'react'
 import { PopupContext } from '../../../Contexts/PopupContext'
+import { AuthContext } from '../../../Contexts/AuthContext'
+import { photoService } from '../../../services/photoService'
 import spinner from '../../../images/svgs/spinner.svg'
 import './photo-prev.scss'
-import { photoService } from '../../../services/photoService'
-import { AuthContext } from '../../../Contexts/AuthContext'
 
 const IMAGE_STATUS = { LOADING: 'LOADING', READY: 'READY', FAILED: 'FAILED' }
 
@@ -15,9 +15,6 @@ const PhotoPrev = () => {
     const [loading, setLoading] = useState(IMAGE_STATUS.LOADING) // loading | ready | failed
     const [url, setUrl] = useState(null)
 
-    console.log('payload', payload);
-
-
     useEffect(() => {
         getUrl()
     }, [])
@@ -26,16 +23,13 @@ const PhotoPrev = () => {
         
         photoService.getPhotopPrev({ photo_id: payload.id, user_id: userInfo.id })
             .then((res) => {
-                console.log('res prev', res.data);
                 // setLoading(false)
-
                 setUrl(res.data.url)
             })
             
     }
     
     const onLoad = () => {
-        console.log('LOADDDD');
         setLoading(IMAGE_STATUS.READY)
     }
 
