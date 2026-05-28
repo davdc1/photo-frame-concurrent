@@ -1,8 +1,8 @@
+import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { AuthContext } from '../../Contexts/AuthContext'
 import { authService } from '../../services/authService'
 import './main-menu.scss'
-import { useContext } from 'react'
-import { AuthContext } from '../../Contexts/AuthContext'
 
 const MainMenu = () => {
     

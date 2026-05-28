@@ -1,13 +1,12 @@
 import { useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { AuthContext } from '../../../Contexts/AuthContext'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { PopupContext } from '../../../Contexts/PopupContext'
 import { photoService } from '../../../services/photoService'
+import { localStorageKeys } from '../../../utils/consts'
 import './playlist-popup.scss'
 
 const PlayListPopup = () => {
 
-    const { userInfo } = useContext(AuthContext)
     const { toggle } = useContext(PopupContext)
 
     const [albums, setAlbums] = useState([])
@@ -18,42 +17,36 @@ const PlayListPopup = () => {
 
 
     useEffect(() => {
-
         init()
-
     }, [])
 
     const init = async () => {
 
         try {
-            let res = await photoService.getUserAlbums({ userId: userInfo.id })
-            
+            let res = await photoService.getUserAlbums()
+
             setAlbums(res.data)
-            
-            let { playlist } = JSON.parse(localStorage.getItem('playListData') || '{}')
+
+            let { playlist } = JSON.parse(localStorage.getItem(localStorageKeys.PLAY_LIST_DATA) || '{}')
+
             let array = []
             for (let item in playlist) {
                 let album = res.data.find((el) => el.id === playlist[item])
                 array.push(album)
             }
             setSelected(array)
-            
+
         } catch (error) {
-            
+            console.log('Error at playlist', error);
+
         }
 
     }
 
-    // const getAlbums = async () => {
-    //     return photoService.getUserAlbums({ userId: userInfo.id })
-    //     .then((res) => {
-    //         console.log('get albums:', res.data);
-    //         setAlbums(res.data)
-    //     })
-    //     .catch(() => {})
-    // }
-
     const toggleSelect = () => {
+        if (albums.length === 0) {
+            return
+        }
         setListOpened((state) => !state)
     }
 
@@ -63,7 +56,7 @@ const PlayListPopup = () => {
 
     const removeItem = (idx) => {
         setSelected((state) => {
-            
+
             return state.filter((e, i) => i !== idx)
         })
     }
@@ -75,9 +68,9 @@ const PlayListPopup = () => {
             obj[i + 1] = e.id
         })
 
-        let storage = JSON.parse(localStorage.getItem('playListData') || '{}')
+        let storage = JSON.parse(localStorage.getItem(localStorageKeys.PLAY_LIST_DATA) || '{}')
         storage.playlist = obj
-        localStorage.setItem('playListData', JSON.stringify(storage))
+        localStorage.setItem(localStorageKeys.PLAY_LIST_DATA, JSON.stringify(storage))
 
         toggle()
         navigate('/auth/frame', { state: { sessionType: 'playlist' } })
@@ -85,46 +78,71 @@ const PlayListPopup = () => {
     }
 
     const tempContent = {
-        playlistPopup_title: 'New playlist',
-        playlistPopup_select: 'select album',
-        playlistPopup_add: 'add'
+        PlaylistPopup_title: 'New Playlist',
+        PlaylistPopup_select: 'select album',
+        PlaylistPopup_add: 'add',
+        PlaylistPopup_albumEmpty: 'album is empty',
+        PlaylistPopup_empty: 'PlayList is empty. Add albums to start',
+        PlaylistPopup_noAlbumsLine1: 'No albums found.',
+        PlaylistPopup_noAlbumsLine2: 'Create one to start',
+        PlaylistPopup_confirm: 'Save playlist'
     }
 
     return (
         <div className='playlist-popup-wrapper'>
             <span className='playlist-popup-title'>
-                {tempContent.playlistPopup_title}
+                {tempContent.PlaylistPopup_title}
             </span>
 
             <div className='playlist-popup-list'>
                 {selected.map((album, idx) => (
                     <div className='playlist-popup-list-item' key={idx.toString()}>
-                        <span>{album.name}</span>
+                        <span className='playlist-item-number'>{idx + 1}</span>
+                        <span className='playlist-item-name'>{album?.name}</span>
                         <span onClick={() => removeItem(idx)} className='playlist-popup-remove-btn'>{"-"}</span>
                     </div>
                 ))}
+
+                {selected.length === 0 ? <p className='playlist-popup-list-empty'>{tempContent.PlaylistPopup_empty}</p> : ''}
             </div>
 
             <div className='playlist-popup-select'>
                 <div className='playlist-popup-select-top' onClick={toggleSelect}>
-                    <span>
-                        {tempContent.playlistPopup_select}
-                    </span>
-                    <span>{"+"}</span>
+                    {/* <span>
+                        {albums.length === 0 ? tempContent.PlaylistPopup_noAlbumsLine1 : tempContent.PlaylistPopup_select}
+                    </span> */}
+
+
+                    {albums.length === 0 ?
+                        <div className='playlist-popup-no-albums'>
+                            <span>
+                                {tempContent.PlaylistPopup_noAlbumsLine1}
+                            </span>
+
+                            <NavLink className="" to="/auth/albums" state={{ openCreateAlbum: true }}>{tempContent.PlaylistPopup_noAlbumsLine2}</NavLink>
+                        </div> :
+                        <span>{tempContent.PlaylistPopup_select}</span>}
+
+
+
+                    {albums.length > 0 ? <span>{"+"}</span> : ''}
                 </div>
                 <div className={`playlist-popup-select-bottom ${listOpened ? 'opened' : ''}`}>
                     {albums.map((album, idx) => {
                         return (
                             <div className='playlist-popup-select-item' key={idx.toString()}>
                                 <span>{album.name}</span>
-                                <span className='playlist-popup-select-add-btn' onClick={() => addToPlaylist(album)}>{tempContent.playlistPopup_add}</span>
+                                {album.has_photos ?
+                                    <span className='playlist-popup-select-add-btn' onClick={() => addToPlaylist(album)}>{tempContent.PlaylistPopup_add}</span> :
+                                    <span>{tempContent.PlaylistPopup_albumEmpty}</span>
+                                }
                             </div>
                         )
                     })}
                 </div>
             </div>
 
-            <button onClick={confirm}>{"OKOKO"}</button>
+            <button onClick={confirm}>{tempContent.PlaylistPopup_confirm}</button>
         </div>
     )
 }

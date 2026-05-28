@@ -1,60 +1,67 @@
 
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { PopupContext } from '../../Contexts/PopupContext'
+import Icon from '../Icon'
+import expandIcon from '../../images/svgs/expand.svg'
 import './thumbnail-select.scss'
 
-const OPEN_BUTTON_ID = 'thumbnailSelectOpen'
+const ThumbnailSelect = ({ params: { item, onSelectItem, selected, disable, inAlbum, startDrag, select, markReorder, skeleton = true } }) => {
+    // const ThumbnailSelect = ({ item, onSelectItem, selected, disable, inAlbum, startDrag, select }) => {
 
-const ThumbnailSelect = ({ params: { item, onSelectItem, selected, disable, inAlbum } }) => {
-
+    const [loaded, setLoaded] = useState(false)
     const { toggle } = useContext(PopupContext)
 
     const prevPopup = () => {
         toggle({ popupType: 'PhotoPrev', payload: { id: item.id } })
     }
 
-    const handleSelect = (e) => {        
-        if (e?.target?.id == OPEN_BUTTON_ID) return
-        else onSelectItem(e)
+    const handleSelect = (e) => {
+        if (e.target.classList.contains('thumbnail-open')) return
+        onSelectItem(e)
     }
 
-    return 1 ? (
+    // TODO. TEST
+    const handleLoad = () => {
+        setLoaded(true)
+    }
+
+    return (
         <div
-            className={`thumbnail-select-wrapper ${disable ? 'disabled' : ''}`}
+            className={`thumbnail-select-wrapper ${disable ? 'disabled' : ''} ${markReorder ? 'drag' : ''}`}
+            id={`thumbnail_id_${item.album_photo_id}`}
             data-photoid={item.id}
             data-albumphotoid={item.album_photo_id}
-            onClick={disable ? null : handleSelect}
-            draggable={inAlbum && selected[item.album_photo_id]}
+            data-order={item.order}
+            onClick={disable || !select ? undefined : handleSelect}
+            onMouseDown={!select ? undefined : startDrag}
+            onTouchStart={!select ? undefined : startDrag}
         >
-            <button id={OPEN_BUTTON_ID} onClick={prevPopup}>{"OPEN"}</button>
-            <div className='thumbnail-select-img-container'>
-                <img className='thumbnail-select-img' src={item.url} alt='' draggable={false} />
-            </div>
-            <span className='thumbnail-select-text' >{item.name_user}</span>
-            ---<span>{item.album_photo_id}</span>
-            <div className={`thumbnail-select-check ${selected[item.id] || inAlbum && selected[item.album_photo_id] ? 'selected' : ''}`}></div>
+            {select ?
+                <>
+                    <div className='thumbnail-overlay' data-albumphotoid={item.album_photo_id}></div>
+                    <button className='thumbnail-open' onClick={prevPopup}>
+                        <img src={expandIcon} />
+                    </button>
+                    <div className={`thumbnail-select-check ${selected[item.id] || (inAlbum && selected[item.album_photo_id]) ? 'selected' : ''}`}>
+                        <Icon type='check' className='check-icon' />
+                    </div>
+                </> : ''}
+
+            <img
+                className='thumbnail-select-img'
+                src={item.url}
+                alt=''
+                draggable={false}
+                onClick={!select ? prevPopup : undefined}
+                onLoad={handleLoad}
+            />
+
+
+            {!loaded && skeleton ?
+                <div className='thumbnail-skeleton'>
+                    <Icon type={'spinner'} />
+                </div> : ''}
         </div>
-    ) : (''
-        // <div className='thumbnail-wrapper' onClick={prevPopup}>
-        //     <div className='thumbnail-img-container'>
-        //         <img className='thumbnail-img' src={item.url} alt='' />
-        //     </div>
-        //     <span className='thumbnail-text' >{item.name_user}</span>
-        // </div>
-
-
-        // <div
-        //     className={`thumbnail-select-wrapper ${disable ? 'disabled' : ''}`}
-        //     data-photoid={item.id}
-        //     onClick={disable ? null : onSelectItem}
-        // >
-        //     {1 ? <button onClick={prevPopup}>{"OPEN"}</button> : '' }
-        //     <div className='thumbnail-select-img-container'>
-        //         <img className='thumbnail-select-img' src={item.url} alt='' />
-        //     </div>
-        //     <span className='thumbnail-select-text' >{item.name_user}</span>
-        //     {1 ?  <div className={`thumbnail-select-check ${selected[item.id] ? 'selected' : ''}`}></div> : ''}
-        // </div>
     )
 }
 

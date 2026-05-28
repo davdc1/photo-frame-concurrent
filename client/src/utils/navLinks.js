@@ -1,20 +1,15 @@
 export const navLinks = (texts) => {
 
-   
-    // '/start-show'
-    // '/albums'
-    // '/photos'
-    // '/frame'
-    
     return [
-    
-    { text: 'Start a show', path: '/auth/start-show' },
-    { text: 'Albums', path: '/auth/albums' },
-    { text: 'All photos', path: '/auth/photos' },
-    { text: 'Slide show', path: '/auth/frame' },
 
-    
-    { text: 'Test', path: '/test', admin: true }
+        { text: 'Set Up Slideshow', path: '/auth/start-show', bottomNav: false, iconType: 'choose' },
+        { text: 'Albums', path: '/auth/albums', bottomNav: true, iconType: 'albums' },
+        { text: 'All Photos', path: '/auth/photos', bottomNav: true, iconType: 'photos' },
+        { text: 'Slideshow', path: '/auth/frame', bottomNav: true, iconType: 'slide-show' },
+        { text: 'Settings', path: '/auth/settings', bottomNav: false, iconType: 'settings' },
+
+        // { text: 'Test', path: '/test', admin: 0 }
 
 
-]}
+    ]
+}

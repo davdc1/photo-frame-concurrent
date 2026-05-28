@@ -13,4 +13,24 @@
     margin: 10px;
 
     cursor: pointer;
+
+
+    &.selected {
+        border-color: rgba(241, 50, 50, 0.841);
+        border-width: 2px;
+    }
+
+
+    .album-name-container {
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: center;
+        justify-content: center;
+
+        width: 100%;
+
+        .album-item-edit {
+            margin-left: 6%;
+        }
+    }
 }

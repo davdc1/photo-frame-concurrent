@@ -1,0 +1,86 @@
+.album-list-wrapper {
+    // display: grid;
+    // grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    // justify-items: center;
+
+
+
+
+    display: grid;
+    gap: 16px;
+
+    grid-template-columns: 1fr;
+    justify-content: center;
+
+
+    .no-albums {
+        // margin-top: 20px;
+        // font-size: 0.95rem;
+        // color: var(--text-color-2);
+
+        grid-column: 1 / -1;
+        justify-self: center;
+
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20%;
+        text-align: center;
+        text-wrap: nowrap;
+
+        margin-top: 16%;
+        border-radius: 22px;
+
+        border: solid var(--text-color-2) 1px;
+
+        color: var(--text-color);
+
+
+
+    }
+
+}
+
+
+@media (min-width: 700px) {
+    .album-list-wrapper {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1070px) {
+    .album-list-wrapper {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1430px) {
+    .album-list-wrapper {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 1800px) {
+    .album-list-wrapper {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+@media (min-width: 2160px) {
+    .album-list-wrapper {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+@media (min-width: 2520px) {
+    .album-list-wrapper {
+        grid-template-columns: repeat(7, 1fr);
+    }
+}
+
+@media (min-width: 2880px) {
+    .album-list-wrapper {
+        grid-template-columns: repeat(8, 1fr);
+    }
+}

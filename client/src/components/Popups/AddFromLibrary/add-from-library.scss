@@ -1,0 +1,29 @@
+.add-fl-wrapper {
+    width: 400px;
+    max-width: 88vw;
+    height: 350px;
+    padding: 12px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .add-fl-close {
+        align-self: flex-end;
+        padding: 0;
+        border: none;
+        margin: 0 6px 0 0;
+        outline: none;
+        rotate: 45deg;
+        font-size: 34px;
+        background: none;
+        cursor: pointer;
+    }
+
+    .add-fl-list {
+
+    }
+    .add-fl-submit {
+        
+    }
+}

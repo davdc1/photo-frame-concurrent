@@ -11,13 +11,16 @@
     .add-photos-title {
         margin-top: 10%;
     }
+
     .add-photos-buttons {
         display: flex;
+        flex-direction: column;
 
         margin-top: 10%;
-        // .add-photos-button {
 
-        // }
+        .add-photos-button {
+            margin-top: 5%;
+        }
     }
 }
 

@@ -1,6 +1,8 @@
 import { createContext, useEffect, useState } from "react";
 import { authService } from "../services/authService";
-import setAxiosDefaults from "../utils/serviceDefaults";
+import { setAxiosDefaults } from "../utils/serviceDefaults";
+import { useNavigate } from "react-router-dom";
+import { localStorageKeys } from "../utils/consts";
 
 export const AuthContext = createContext({
     userInfo: {
@@ -18,7 +20,7 @@ export const AuthContext = createContext({
 export const AuthContextProvider = ({ children }) => {
 
     const [userInfo, setUserInfo] = useState(() => {
-        let storedInfo = JSON.parse(localStorage.getItem('frame_app_store') || '{}')
+        let storedInfo = JSON.parse(localStorage.getItem(localStorageKeys.FRAME_APP_STORE) || '{}')
         if (storedInfo?.id) return storedInfo
         else return (
             {
@@ -32,11 +34,12 @@ export const AuthContextProvider = ({ children }) => {
         )
     })
 
+    const navigate = useNavigate()
+
     useEffect(() => {
-        let { accessToken, ...data } = JSON.parse(localStorage.getItem('frame_app_store') || '{}')
+        let { accessToken, ...data } = JSON.parse(localStorage.getItem(localStorageKeys.FRAME_APP_STORE) || '{}')
         if (accessToken) {
-            console.log('HI', { accessToken, ...data });
-            setUserInfo((state) => ({ accessToken, ...data }))
+            setUserInfo(() => ({ accessToken, ...data }))
             setAxiosDefaults(accessToken)
         }
     }, [])
@@ -45,37 +48,58 @@ export const AuthContextProvider = ({ children }) => {
 
         return authService.login({ email, password })
         .then((res) => {
-            console.log('res.data1111', res.data);
-            const { accessToken, refreshToken, accessExpiration } = res.data
-            localStorage.setItem('frame_app_store', JSON.stringify({ accessToken, refreshToken, accessExpiration, ...res.data }))
-            setUserInfo((state) => ({ ...state, ...res.data }))
-            setAxiosDefaults(res.data?.accessToken)
+            signUser(res)
         })
         .catch((error) => {
             console.log('login error11111', error);
         })
     }
 
-    const refreshAccessToken = () => {
-        const { refreshToken } = JSON.parse(localStorage.getItem('frame_app_store') || '{}')
-        authService.refreshAccessToken({ refreshToken, userId: userInfo.id })
-        .then((res) => {
-            const { accessToken, refreshToken, accessExpiration } = res.data
-            localStorage.setItem('frame_app_store', JSON.stringify({ accessToken, refreshToken, accessExpiration }))
-            setUserInfo((state) => ({ ...state, ...res.data.accessToken }))
-            setAxiosDefaults(accessToken)
-        })
-        .catch((error) => {
+    const signUser = (res) => {
+        localStorage.setItem(localStorageKeys.FRAME_APP_STORE, JSON.stringify({ ...res.data }))
+        setUserInfo((state) => ({ ...state, ...res.data }))
+        setAxiosDefaults(res.data?.accessToken)
 
-        })
+        let playListData = JSON.parse(localStorage.getItem(localStorageKeys.PLAY_LIST_DATA) || '{}')
+        if (res.data.id != playListData.userId) {
+            // init playListData
+            const obj = {
+                userId: res.data.id,
+                current_playlist_album: '',
+                play_next_album: '',
+                playlist: {}
+            }
+        
+            localStorage.setItem(localStorageKeys.PLAY_LIST_DATA, JSON.stringify(obj))
+        }
+    }
+
+    const logout = async () => {
+        console.log('logout');
+
+        // api logout (revoke token)
+        
+        try {
+            authService.logout()
+        } catch (error) {
+            
+        }
+        
+        localStorage.setItem(localStorageKeys.FRAME_APP_STORE, '{}')
+        setUserInfo({})
+
+        navigate('/user-auth')        
+        
+        
     }
 
     const value = {
         userInfo,
-        // setUserInfo, // ???
-
+        // setUserInfo,
+        signUser,
         login,
-        refreshAccessToken
+        logout,
+        // refreshAccessToken
     }
 
     return (

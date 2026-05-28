@@ -11,7 +11,7 @@ const ProtectedRoute = ({ children }) => {
     return auth.userInfo.id ? (
         children
     ) : (
-        <Navigate to='/login' state={{ from: location }} />
+        <Navigate to='/user-auth' state={{ from: location }} />
     )
 }
 

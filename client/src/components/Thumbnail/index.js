@@ -13,10 +13,7 @@ const Thumbnail = ({ params: { item } }) => {
 
     return (
         <div className='thumbnail-wrapper' onClick={prevPopup}>
-            <div className='thumbnail-img-container'>
-                <img className='thumbnail-img' src={item.url} alt='' />
-            </div>
-            <span className='thumbnail-text' >{item.name_user}</span>
+            <img className='thumbnail-img' src={item.url} alt='' />
         </div>
     )
 }

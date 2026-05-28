@@ -7,6 +7,7 @@ const UploadDone = () => {
     const { payload, toggle } = useContext(PopupContext)
 
     const closePopup = () => {
+        payload?.whenFinished?.()
         toggle()
     }
 
@@ -16,7 +17,7 @@ const UploadDone = () => {
 
     const tempContent = {
         uploadDone_title: 'upload completed',
-        uploadDone_line: 'would yoy like to',
+        uploadDone_line: 'would you like to',
         uploadDone_buttonAgain: 'upload more',
         uploadDone_buttonClose: 'finish'
     }
@@ -28,8 +29,8 @@ const UploadDone = () => {
             <span className='upload-done-line'>{tempContent.uploadDone_line}</span>
 
             <div className='upload-done-button-container'>
-                <button className='upload-done-again' onClick={backToUpload}>{tempContent.uploadDone_buttonAgain}</button>
-                <button className='upload-done-finish' onClick={closePopup}>{tempContent.uploadDone_buttonClose}</button>
+                <button className='upload-done-button again' onClick={backToUpload}>{tempContent.uploadDone_buttonAgain}</button>
+                <button className='upload-done-button finish' onClick={closePopup}>{tempContent.uploadDone_buttonClose}</button>
             </div>
         </div>
     )

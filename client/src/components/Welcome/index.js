@@ -1,18 +1,20 @@
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { AuthContext } from '../../Contexts/AuthContext'
 import './welcome.scss'
 
 const Welcome = () => {
 
+    const { userInfo } = useContext(AuthContext)
     const navigate = useNavigate()
 
     useEffect(() => {
         setTimeout(() => {
-            // if logged:
-            // navigate('/main-menu')
-
-            // else
-            navigate('/login')
+            if (userInfo.id) {
+                navigate('/auth/photos')
+            } else {
+                navigate('/user-auth')
+            }
         }, 4000)
     }, [])
 

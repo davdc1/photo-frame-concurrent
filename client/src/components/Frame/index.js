@@ -1,69 +1,65 @@
 
-import { useContext, useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { AuthContext } from '../../Contexts/AuthContext'
+import { useEffect, useRef, useState } from 'react'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { photoService } from '../../services/photoService'
-import spinner from '../../images/svgs/spinner.svg'
+import { intervalUnits, localStorageKeys, playListDataKeys, sessionOrderTypes, transitionClasses, transitionTypes, unitToSeconds } from '../../utils/consts'
+import exitFullScreen from '../../images/svgs/exit-full-screen.svg'
+import enterFullScreen from '../../images/svgs/full-screen.svg'
+import Spinner from '../Spinner'
 import './frame.scss'
 
-
-
-// import testImg from '../../images/DSC_1978.JPG'  // src/images/DSC_1978.JPG
-
-
 const AS_URL = true
-const SLIDE_SHOW_INTERVAL = 8000 // should be set by user
-
-
-// these should be saved on localStorage:
-// const temp_playlist = {
-//     1: 1,
-//     2: 2,
-//     3: 3
-// }
-
-// let temp_current_playlist_album = 1
-// let temp_play_next_album = 2
-
-
-// ///////////////
-// localStorage.setItem('playListData', JSON.stringify({ playlist: temp_playlist }))
-// ///////////////
-
-
-
-
 
 const Frame = () => {
 
+    const [noPhotos, setNoPhotos] = useState(false)
     const [sessionId, setSessionId] = useState(null)
-    const [intervalId, setIntervalId] = useState()
     const [images, setImages] = useState([])
     const [imageUrls, setImageUrls] = useState([])
     const [imgClass, setImgClass] = useState({ first: '', second: '' })
     const [go, setGo] = useState(true)
-    const [showKeys, setShowKeys] = useState(true)
+    const [showKeys, setShowKeys] = useState(false)
     const [loading, setLoading] = useState(false)
     const [circling, setCircling] = useState(false)
-    
-    const { userInfo } = useContext(AuthContext)
+    const [transitionType, setTransitionType] = useState()
+    const [fullScreen, setFullScreen] = useState(false)
+    const [canFullscreen, setCanFullscreen] = useState(false)
+
     const imageUrlsRef = useRef(imageUrls)
     const intervalRef = useRef(null)
+    const showKeysTimerRef = useRef(null)
+    const queIdCounter = useRef(0)
+
     const location = useLocation()
     const navigate = useNavigate()
-    
+
     useEffect(() => {
         init()
-        return () => {
-            clearInterval(intervalId)
+
+        setCanFullscreen(
+            document.fullscreenEnabled &&
+            typeof document.documentElement.requestFullscreen === "function"
+        )
+
+        window.addEventListener('mousedown', keepKeys)
+        window.addEventListener('touchstart', keepKeys)
+
+        return async () => {
+            if (document.fullscreenElement) {
+                await document.exitFullscreen()
+            }
+
+            window.removeEventListener('mousedown', keepKeys)
+            window.removeEventListener('touchstart', keepKeys)
+
+            stopCycle()
         }
+
     }, [])
 
     useEffect(() => {
         if (sessionId) {
             getFive()
-            // fillQue()
-            // startCycle()
         }
     }, [sessionId])
 
@@ -77,63 +73,104 @@ const Frame = () => {
 
     useEffect(() => {
         if (AS_URL) {
-            if (imageUrls.length < 5)  fillQue()
+            if (imageUrls.length < 5) fillQue()
         } else {
-            if (images.length < 5)  fillQue()
+            if (images.length < 5) fillQue()
         }
     }, [imageUrls.length, images.length])
 
-    const init = () => {
-        const { playlist } = JSON.parse(localStorage.getItem('playListData') || '{}')
-        const session_id = localStorage.getItem('photoSessionId')
+    const toggleFullscreen = () => {
+        if (fullScreen) {
+            document.exitFullscreen()
+            setFullScreen(false)
+        } else {
+            document.documentElement.requestFullscreen()
+                .then(() => {
+                    setFullScreen(true)
+                })
+                .catch((error) => {
+                    console.log('error', error);
+                })
+        }
+    }
+
+    const keepKeys = () => {
+        if (showKeysTimerRef.current) clearTimeout(showKeysTimerRef.current)
+
+        setShowKeys(true)
+        showKeysTimerRef.current = setTimeout(() => {
+            setShowKeys(false)
+        }, 6000)
+    }
+
+    const init = async () => {
+        const { playlist } = getPlayListData()
+        const session_id = localStorage.getItem(localStorageKeys.PHOTO_SESSION_ID)
         const sessionType = location.state?.sessionType
-        
+        const transitionType = localStorage.getItem(localStorageKeys.TRANSITION_TYPE) // TODO: default?
+
+        let count = await getUserPhotoCount()
+        if (count === 0) {
+            setNoPhotos(true)
+            return
+        }
+
+        setTransitionType(transitionType)
+
         if (sessionType === 'all_photos') {
             newSession()
         } else if (sessionType === 'playlist') {
-            console.log('plylist');
             newSession({ album_id: Object.values(playlist)[0] })
         } else if (session_id) {
-            console.log('saved session:', session_id);
-            photoService.retrieveSession({ session_id, user_id: userInfo.id })
-            .then((res) => {
-                if (res.status === 200) {
-                    setSessionId(res.data.id)
-                } else if (res.status === 201) {
-                    navigate('/auth/start-show')
-                }
-            })
+            photoService.retrieveSession({ session_id })
+                .then((res) => {
+                    if (res.status === 200) {
+                        setSessionId(res.data.id)
+                    } else if (res.status === 201) { // session not found
+                        navigate('/auth/start-show')
+                    }
+                })
         } else {
             navigate('/auth/start-show')
         }
     }
 
+    const getUserPhotoCount = async () => {
+        try {
+            const res = await photoService.getUserPhotoCount()
+
+            return res.data.count
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const getFive = () => {
-        return getAPhoto(true)
-        .then(() => getAPhoto(true))
-        .then(() => getAPhoto(true))
-        .then(() => getAPhoto(true))
-        .then(() => getAPhoto(true))
-        .then(() => startCycle())
+
+        // why sequential? 
+        return getAPhoto()
+            .then(() => getAPhoto())
+            .then(() => getAPhoto())
+            .then(() => getAPhoto())
+            .then(() => getAPhoto())
+            .then(() => startCycle())
+    }
+
+    const getSlideShowInterval = () => {
+        let interval = localStorage.getItem(localStorageKeys.SLIDE_SHOW_INTERVAL) || 30
+        interval = 1000 * interval * unitToSeconds[localStorage.getItem(localStorageKeys.INTERVAL_UNIT) || intervalUnits.SECONDS]
+        return interval
     }
 
     const startCycle = async () => {
-        const interval = SLIDE_SHOW_INTERVAL // should be dynamic.
-        // if (!intervalId) {
-        //     console.log('startCycle. sessionId:', sessionId);
-        //     setIntervalId(setInterval(makeTheShift, interval))
-        // }
+        const interval = getSlideShowInterval()
 
         if (!intervalRef.current) {
-            console.log('startCycle. sessionId:', sessionId);
             intervalRef.current = setInterval(makeTheShift, interval)
         }
     }
 
     const stopCycle = () => {
-        // clearInterval(intervalId)
-        // setIntervalId(null)
-        
         if (intervalRef.current) {
             clearInterval(intervalRef.current)
             intervalRef.current = null
@@ -141,102 +178,89 @@ const Frame = () => {
     }
 
     const newSession = async (obj) => {
-
-        console.log('newSession');
-        return photoService.newSession({ user_id: userInfo.id, album_id: obj?.album_id })
-        .then((res) => {
-            console.log('newSession res', res.data.id);
-            setSessionId(res.data.id)
-            localStorage.setItem('photoSessionId', res.data.id)
-            if (location.state?.sessionType) {
-                console.log('REPLACING STATE');
-                navigate(location.pathname, { replace: true, state: {} })
-            }
-        })
-
+        return photoService.newSession({ album_id: obj?.album_id })
+            .then((res) => {
+                setSessionId(res.data.id)
+                localStorage.setItem(localStorageKeys.PHOTO_SESSION_ID, res.data.id)
+                if (location.state?.sessionType) {
+                    navigate(location.pathname, { replace: true, state: {} })
+                }
+            })
     }
 
     const getPlayListData = () => {
-        return JSON.parse(localStorage.getItem('playListData') || "{}")
+        return JSON.parse(localStorage.getItem(localStorageKeys.PLAY_LIST_DATA) || "{}")
     }
 
     const updatePlayListData = ({ key, value }) => {
-        let obj = JSON.parse(localStorage.getItem('playListData') || "{}")
+        let obj = getPlayListData()
         obj[key] = value
-        localStorage.setItem('playListData', JSON.stringify(obj))
+        localStorage.setItem(localStorageKeys.PLAY_LIST_DATA, JSON.stringify(obj))
     }
 
     const onLastInAlbum = () => {
-        
+
         let playListData = getPlayListData()
 
         if (!playListData.playlist) return
 
-        let orderKeys = Object.keys(playListData.playlist || "{}").sort((a, b) => a - b)
+        let orderKeys = Object.keys(playListData.playlist || {}).sort((a, b) => a - b)
         let play_next_album = orderKeys.find((num) => num > playListData.current_playlist_album)
 
         if (!play_next_album) {
             play_next_album = orderKeys[0]
         }
 
-        updatePlayListData({ key: 'play_next_album', value: play_next_album || "" })
+        updatePlayListData({ key: playListDataKeys.PLAY_NEXT_ALBUM, value: play_next_album || "" })
     }
 
-    const getAPhoto = async (loadingFive) => {
-        
+    const getAPhoto = async () => {
+
         let album_id
         let playListData = getPlayListData()
 
         // sketch:
-        if (!playListData.all_photos && playListData?.play_next_album) {
+        if (!playListData?.all_photos && playListData?.play_next_album) {
             album_id = playListData.playlist[playListData.play_next_album]
-            updatePlayListData({ key: 'current_playlist_album', value: playListData.play_next_album })
-            updatePlayListData({ key: 'play_next_album', value: null })
+            updatePlayListData({ key: playListDataKeys.CURRENT_PLAYLIST_ALBUM, value: playListData.play_next_album })
+            updatePlayListData({ key: playListDataKeys.PLAY_NEXT_ALBUM, value: null })
         }
-        
-        return photoService.getSessionPhoto({ session_id: sessionId, user_id: userInfo.id, album_id })
 
-        .then((res) => {
+        let random = localStorage.getItem(localStorageKeys.SESSION_ORDER) === sessionOrderTypes.RANDOM ? 'random' : null
 
-            if (res.data.last_in_album) {
-                onLastInAlbum()
-            }
+        return photoService.getSessionPhoto({ session_id: sessionId, album_id, random })
 
-            if (!AS_URL) {
-                console.log('resss', res);
-    
-                // const { meta, image } = res.data
-                
-                const base64 = btoa(
-                    new Uint8Array(res.data).reduce(
-                        (data, byte) => data + String.fromCharCode(byte),
-                        ''
-                    )
-                );
-                const imageUrl = `data:image/jpeg;base64,${base64}`;
-                const image = new Image()
-                image.src = imageUrl
-                // setOneImage(imageUrl)
-                setImages((state) => {
-                    
-                    // if(state.length > 5) {
-                    //     console.log('shift 1');
-                    //     state.shift()
-                    // }
-                    // return state.push(imageUrl)
-                    // return [...state, imageUrl]
-                    return [...state, image]
-    
-                });
-            } else {
-                console.log('photo data', res.data);
-                setImageUrls((state) => ([...state, res.data.url]))
-            }
-        })
-        .catch((error) => {
-            console.log('error', error);
-            return Promise.reject(error)
-        })
+            .then((res) => {
+
+                if (res.data.last_in_album) {
+                    onLastInAlbum()
+                }
+
+                if (!AS_URL) {
+
+                    // const { meta, image } = res.data
+
+                    const base64 = btoa(
+                        new Uint8Array(res.data).reduce(
+                            (data, byte) => data + String.fromCharCode(byte),
+                            ''
+                        )
+                    );
+                    const imageUrl = `data:image/jpeg;base64,${base64}`;
+                    const image = new Image()
+                    image.src = imageUrl
+                    // setOneImage(imageUrl)
+                    setImages((state) => {
+                        return [...state, image]
+                    });
+                } else {
+                    setImageUrls((state) => ([...state, { url: res.data.url, id: queIdCounter.current++ }]))
+                }
+            })
+            .catch((error) => {
+                console.log('error', error);
+                return Promise.reject(error)
+            })
 
     }
 
@@ -250,13 +274,12 @@ const Frame = () => {
 
     const makeTheShift = (manualShift) => {
 
-        console.log('shift');
-        // getAPhoto()
-
         if (imageUrlsRef.current.length > 1) {
+            const { transitionIn, transitionOut, transitionDelay } = transitionTimes
+
             setLoading(false)
-            
-            setImgClass({ first: 'fade-out', second: 'fade-in' })
+
+            setImgClass({ first: transitionClasses[transitionType].OUT, second: transitionClasses[transitionType].IN })
             setTimeout(() => {
                 if (AS_URL) {
                     let urls = [...imageUrlsRef.current]
@@ -268,40 +291,37 @@ const Frame = () => {
                     setImages(images)
                 }
                 setImgClass({ first: '', second: '' })
-            }, 3700)
+            }, transitionIn + transitionOut + transitionDelay)
         } else if (manualShift) {
-            console.log('que is empty');
             fillQue()
             setLoading(true)
         }
-        
+
     }
 
     const fillQue = () => {
 
-        console.log('FILLL_QUE');
-    
         let retryInterval = 2000
         let retryTimeoutId
         const getAPhotoCircle = () => {
-            
+
             if (imageUrlsRef.current.length < 5) {
                 setCircling(true)
                 getAPhoto()
-                .then(() => {
-                    clearTimeout(retryTimeoutId)
-                    return getAPhotoCircle()
-                })
-                .catch(() => {                   
+                    .then(() => {
+                        clearTimeout(retryTimeoutId)
+                        return getAPhotoCircle()
+                    })
+                    .catch(() => {
 
-                    retryTimeoutId = setTimeout(() => {
-                        getAPhotoCircle()
-                    } ,retryInterval)
+                        retryTimeoutId = setTimeout(() => {
+                            getAPhotoCircle()
+                        }, retryInterval)
 
-                    if (retryInterval < 60000) retryInterval *= 1.5
-                    else retryInterval += 60000
+                        if (retryInterval < 60000) retryInterval *= 1.5
+                        else if (retryInterval < 60000 * 60) retryInterval += 60000
 
-                })
+                    })
             } else {
                 setCircling(false)
             }
@@ -311,64 +331,93 @@ const Frame = () => {
 
     }
 
-    
+    const getTransitionTimes = () => {
 
+        let transitionIn
+        let transitionOut
+        let transitionDelay
 
+        if (transitionType === transitionTypes.FADE) {
+            transitionIn = 2200
+            transitionOut = 2000
+            transitionDelay = 1900
+        } else if (window.matchMedia('(max-width: 768px)').matches) {
+            transitionIn = 1000
+            transitionOut = 1000
+            transitionDelay = 999
+        } else if (window.matchMedia('(max-width: 1200px)').matches) {
+            transitionIn = 1500
+            transitionOut = 1500
+            transitionDelay = 1499
+        } else if (window.matchMedia('(max-width: 1900px)').matches) {
+            transitionIn = 2000
+            transitionOut = 2000
+            transitionDelay = 1999
+        } else {
+            transitionIn = 2500
+            transitionOut = 2500
+            transitionDelay = 2499
+        }
 
-    // interval 2.0:
+        return { transitionIn, transitionOut, transitionDelay }
+    }
 
-    // get five.
-    // get-one: only gets one and pushs it array
-    // interval- makes the shift every [interval] seconds
-    // .then --> get-one
+    let transitionTimes = getTransitionTimes()
 
-    // only shift if array has more to go,
-    // deal with connection errors: keep trying on increasing/constant interval
-
-    // what else ?
-
-
-    
+    const tempTexts = {
+        Frame_noPhotosLine1: 'No photos yet.',
+        Frame_noPhotosLine2: 'Upload some photos to get started.'
+    }
 
     return (
-        <div className='frame-wrapper'>
+        <div className='frame-wrapper'
+            style={{
+                '--transition-delay': `${transitionTimes.transitionDelay}ms`,
+                '--transition-time-in': `${transitionTimes.transitionIn}ms`,
+                '--transition-time-out': `${transitionTimes.transitionOut}ms`
+            }}
+        >
 
-            {/* image files: */}
-            {/* {images[0] && <img src={images[0].src} alt='' className={`frame-image`} />} */}
+            <div className={`container ${noPhotos ? 'no-photos' : ''}`} >
 
-            <div className='container' >
+                {noPhotos ? <div className='no-photos-box'>
+                    <h3>{tempTexts.Frame_noPhotosLine1}</h3>
+                    <NavLink to='/auth/photos' state={{ openUploadModal: true }}>{tempTexts.Frame_noPhotosLine2}</NavLink>
+                </div> : ''}
 
                 {/* as file: */}
                 {!AS_URL ? (
                     images.slice(0, 2).map((image, idx) => (
-                    <div className={`image-wrapper-type-3 ${idx === 0 ? imgClass.first + ' first' : imgClass.second + ' second'}`} key={idx.toString()}>
-                        
-                       <img className={`image-type-3`} src={image.src} alt='' />
-                    </div>
-                ))
+                        <div className={`image-wrapper-type-3 ${idx === 0 ? imgClass.first + ' first' : imgClass.second + ' second'}`} key={image.src + idx}>
+                            <img className={`image-type-3`} src={image.src} alt='' />
+                        </div>
+                    ))
                 ) : (
-                    imageUrls.slice(0, 2).map((url, idx) => (
-                    <div className={`image-wrapper-type-3 ${idx === 0 ? imgClass.first + ' first' : imgClass.second + ' second'}`} key={idx.toString()}>
-                        
-                       {/* <img className={`image-type-3`} src={`${process.env.REACT_APP_API_URL}/${url}`} /> */}
-                       <img className={`image-type-3`} src={`${url}`} />
-
-                    </div>
-                )))}
+                    imageUrls.slice(0, 2).map((item, idx) => (
+                        <div className={`image-wrapper-type-3 ${idx === 0 ? imgClass.first + ' first' : imgClass.second + ' second'}`} key={item.id}>
+                            <img className={`image-type-3`} src={item.url} />
+                        </div>
+                    )))}
             </div>
 
-            {loading ? <img src={spinner} className='empty-que-spinner' /> : ''}
+            {loading ? <Spinner className='empty-que-spinner' /> : ''}
 
-            
-            {showKeys ?
+
+            {showKeys && !noPhotos ?
                 <div className='frame-key-container'>
                     <button className='go-button' onClick={toggleGo}>{go ? 'stop' : 'go'}</button>
-                    <button onClick={() => makeTheShift(true)}>shift</button>
+                    {/* <button onClick={() => makeTheShift(true)}>shift</button> */}
+                    {canFullscreen ?
+                        <button className='frame-full-screen-btn' onClick={toggleFullscreen}>
+                            <img src={fullScreen ? exitFullScreen : enterFullScreen} alt='' />
+                        </button> : ''}
                 </div> : ''}
 
-        
+
+
+
         </div>
     )
 }
 
-export default Frame
+export default Frame    

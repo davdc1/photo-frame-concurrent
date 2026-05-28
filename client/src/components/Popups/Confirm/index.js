@@ -19,8 +19,8 @@ const ConfirmPopup = () => {
             <span className="confirm-title">{title}</span>
 
             <div className="confirm-button-block">
-                <button className="confirm-button ok" onClick={() => okCallback?.()}>{okText}</button>
-                <button className="confirm-button cancel" onClick={onCancel}>{cancelText}</button>
+                {okText ? <button className="confirm-button ok" onClick={() => okCallback?.()}>{okText}</button> : ''}
+                {cancelText ? <button className="confirm-button cancel" onClick={onCancel}>{cancelText}</button> : ''}
             </div>
 
         </div>

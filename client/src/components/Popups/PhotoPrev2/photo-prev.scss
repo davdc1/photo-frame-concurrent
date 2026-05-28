@@ -7,10 +7,10 @@
     // max-height: 90%;
 
     max-width: 60dvw;
-    max-height: 90dvh;
+    max-height: 92dvh;
 
-    border: solid rgb(179, 164, 164) 1px;
-    border-radius: 3%;
+    border: solid rgb(108, 92, 92) 2px;
+    border-radius: 20px;
 
     background-color: rgb(35, 35, 35);
 
@@ -21,6 +21,7 @@
 
     .photo-prev-photo {
         width: 100%;
+        max-height: 92vh;
         border-radius: 20px; // probably not the right unit
         display: none;
 

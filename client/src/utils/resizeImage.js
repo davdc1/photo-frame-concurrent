@@ -14,7 +14,7 @@ const resizeImage = (file) => {
                 'file',
               )
         } catch (error) {
-            console.log('eeeeeeeerroror', error);
+            console.log('resize error', error);
             reject(error)
         }
     })

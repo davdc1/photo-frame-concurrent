@@ -1,14 +1,17 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { AuthContext } from '../../Contexts/AuthContext'
+import { PopupContext } from '../../Contexts/PopupContext'
+import Icon from '../Icon'
 // import { TextContext } from '../../Contexts/TextContext'
-import './nav.scss'
+import './nav2.scss'
 
 const NAV_OVERLAY_ID = 'navOverlayId'
 
-const SideNav = ({ links }) => {
+const SideNav = ({ links, componentClass }) => {
 
-    const { userInfo } = useContext(AuthContext)
+    const { userInfo, logout } = useContext(AuthContext)
+    const { toggle } = useContext(PopupContext)
     // const { texts } = useContext(TextContext)
     const [opened, setOpened] = useState(false)
     const [showOverlay, setShowOverlay] = useState(false)
@@ -17,30 +20,46 @@ const SideNav = ({ links }) => {
     const location = useLocation()
 
     useEffect(() => {
-        
-        if (location.pathname === '/auth/frame') { // hide by condition/domain...
+
+        const makeVisibleWrapper = (e) => {
+            console.log('hi makeVisibleWrapper');
+
+            makeVisible({ event: e })
+        }
+
+        if (location.pathname === '/auth/frame') {
             setVisible(false)
-            window.addEventListener('mousemove', makeVisible)
-            window.addEventListener('touchstart', makeVisible)
+            window.addEventListener('mousemove', makeVisibleWrapper)
+            window.addEventListener('touchstart', makeVisibleWrapper)
         } else {
             setVisible(true)
         }
 
         return () => {
-            window.removeEventListener('mousemove', makeVisible)
-            window.removeEventListener('touchstart', makeVisible)
+            window.removeEventListener('mousemove', makeVisibleWrapper)
+            window.removeEventListener('touchstart', makeVisibleWrapper)
             clearTimeout(visibleTimer.current)
         }
     }, [location.pathname])
 
-    const makeVisible = () => {
+    useEffect(() => {
+        if (location.pathname === '/auth/frame') {
+            makeVisible({ navIsOpened: opened })
+        }
+    }, [opened])
+
+    const makeVisible = ({ event, navIsOpened }) => {
         if (visibleTimer.current) clearTimeout(visibleTimer.current)
+
+        let time = 5000
+        if (navIsOpened) time = 60000
+
 
         setVisible(true)
         visibleTimer.current = setTimeout(() => {
             setVisible(false)
             closeNav()
-        }, 5000)
+        }, time)
     }
 
     const closeNav = () => {
@@ -54,7 +73,7 @@ const SideNav = ({ links }) => {
         }
     }
 
-    const toggle = () => {
+    const toggleNav = () => {
         if (opened) {
             closeNav()
         } else {
@@ -63,38 +82,71 @@ const SideNav = ({ links }) => {
         }
     }
 
+    const confirmLogout = () => {
+        // title, okText, cancelText, okCallback, cancelCallback
 
-    const texts = {}
+        const logoutCb = () => {
+            logout()
+            toggle()
+            toggleNav()
+        }
+
+        const payload = {
+            title: tempTexts.Nav_confimLogout,
+            okText: tempTexts.Nav_logoutOk,
+            cancelText: tempTexts.Nav_logoutCancel,
+            okCallback: logoutCb,
+            cancelCallBack: toggle
+        }
+
+        toggle({ popupType: 'Confirm', payload })
+    }
+
+    const tempTexts = {
+        Nav_logout: 'Logout',
+        Nav_confimLogout: 'Logout?',
+        Nav_logoutOk: 'Yes',
+        Nav_logoutCancel: 'No'
+    }
 
     return (
 
         <>
             {!opened ?
-                <div onClick={toggle} className={`navburger ${visible ? 'visible' : ''}`}>
+                <div onClick={toggleNav} className={`navburger ${visible ? 'visible' : ''} ${componentClass ? componentClass : ''}`}>
                     <span></span>
                     <span></span>
                     <span></span>
                 </div> : ''}
 
-                <div className={`side-nav-overlay ${showOverlay ? 'show' : 'unshow'}`} id={NAV_OVERLAY_ID} onClick={clickOutside}>
+            <div className={`side-nav-overlay ${showOverlay ? 'show' : 'unshow'}`} id={NAV_OVERLAY_ID} onClick={clickOutside}>
 
-                    <div className={`side-nav-list ${opened ? 'opened' : 'closed'}`}>
-                        <button onClick={toggle} className='side-nav-close'>+</button>
-                        {links(texts?.Nav || {}).map(({ text, heb_text, path, admin }, idx) => {
-                            
-                            if (admin && userInfo.role !== 'ADMIN') return '' 
-                            
-                            return (
-                                <div onClick={toggle} className='nav-link' key={text + idx}>
-                                    <NavLink to={path}>{heb_text || text}</NavLink>
-                                </div>
-                            )
-                        }
+                <div className={`side-nav-list ${opened ? 'opened' : 'closed'}`}>
+                    <button onClick={toggleNav} className='side-nav-close'>+</button>
+                    {links(/*texts*/).map(({ text, heb_text, path, admin, iconType }, idx) => {
+
+                        if (admin && userInfo.role !== 'ADMIN') return ''
+
+                        return (
+                            <div onClick={toggleNav} className='side-nav-link' key={text + idx}>
+                                <NavLink className='nav-link' to={path}>
+                                    <Icon type={iconType} className='side-nav-icon' />
+                                    <span>{heb_text || text}</span>
+                                </NavLink>
+                            </div>
+                        )
+                    }
                     )}
-                    </div>
-                </div>
 
-    
+                    {userInfo.id ?
+                        <div onClick={confirmLogout} className='side-nav-link logout'>
+                            <Icon type={'logout'} className='side-nav-icon' />
+                            <span>{tempTexts.Nav_logout}</span>
+                        </div> : ''}
+                </div>
+            </div>
+
+
         </>
     )
 }

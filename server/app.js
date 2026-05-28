@@ -1,3 +1,4 @@
+require('dotenv').config();
 var createError = require('http-errors');
 var express = require('express');
 var cors = require('cors');
@@ -9,10 +10,18 @@ var logger = require('morgan');
 var userRouter = require('./routes/user')
 var indexRouter = require('./routes/index');
 var photoRouter = require('./routes/photo')
-var albumRouter =require('./routes/album')
+var albumRouter = require('./routes/album')
+var llmRouter = require('./routes/llm')
 
 var app = express();
-app.use(cors())
+// const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000'
+const CORS_ORIGIN = 'http://localhost:3000'
+
+app.use(cors({ origin: CORS_ORIGIN, credentials: true }))
+
+// app.use(cors({ origin: 'http://localhost:3000', credentials: true }))
+// app.use(cors({ origin: 'http://10.0.0.19:3000', credentials: true })) // for connecting localy from iphone. 10.0.0.19- mac local ip
+
 
 
 require('./data/connect')
@@ -28,22 +37,27 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.use('/views', express.static(path.join(__dirname, 'public/views')));``
-app.use(express.static(path.join(__dirname, '../client/build')));
+app.use('/views', express.static(path.join(__dirname, 'public/views')));
 
-
-app.use('/', indexRouter);
+// app.use('/', indexRouter);
 app.use('/user', userRouter);
 app.use('/photos', photoRouter);
 app.use('/albums', albumRouter)
+app.use('/llm', llmRouter)
+
+// SPA catch-all — serve React app for any unmatched route
+app.use(express.static(path.join(__dirname, '../client/build')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+});
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

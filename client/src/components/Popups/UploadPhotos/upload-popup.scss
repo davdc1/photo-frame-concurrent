@@ -6,11 +6,13 @@
     width: 58dvw;
     height: 54dvh;
 
-    // background-color: white;
+    background-color: var(--bg-color);
+    border-radius: 32px;
 
     .upload-top-row {
         width: 100%;
         display: flex;
+
         .upload-close {
             rotate: 45deg;
             font-size: 30px;
@@ -31,22 +33,32 @@
         align-items: center;
         margin-top: 24px;
         padding-left: 60px;
+
         .upload-input-label {
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-    
-    
-    
-            width: 16rem;
-            height: 2.5rem;
-    
-            border-radius: 2rem;
-    
-            border: solid black 1px;
-    
-    
+
+
+
+            // width: 16rem;
+            // height: 2.5rem;
+
+            // border-radius: 2rem;
+
+            // border: solid black 1px;
+
+            background: var(--btn-color);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: clamp(8px, 2vw, 12px) clamp(16px, 4vw, 28px);
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+
             #upload-input {
                 display: none;
             }
@@ -55,6 +67,7 @@
         .upload-spinner-container {
             margin-left: 25px;
             width: 35px;
+
             .upload-spinner {
                 width: 35px;
             }
@@ -62,53 +75,74 @@
     }
 
 
-    
+
 
     .upload-list-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100px, 100%), 1fr));
+        gap: 5px;
+        grid-auto-rows: min-content;
         overflow: auto;
-        border: dashed gray 1px;
-
-
+        border: dashed var(--border-color) 1px;
         height: 300px;
-
         width: 90%;
-
         border-radius: 1%;
-
         margin-top: 20px;
+        padding: 1%;
 
-        padding: 0.5%;
 
         .upload-list-item {
+
+            position: relative;
+
             display: flex;
             flex-direction: column;
             align-items: center;
-            
-            height: 100px;
-            width: 160px;
+
+            overflow: hidden;
+
             padding: 4px;
             margin-bottom: 15px;
 
+            padding-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: var(--shadow-2);
+            background: var(--bg-color-2);
 
             .upload-list-item-img {
-                height: 100%;
+                // height: 100%;
                 width: 100%;
-                object-fit: contain;
+                aspect-ratio: 1;
+                object-fit: cover;
+
+                border-radius: 3px;
             }
 
-            // .upload-list-item-name {
+            .upload-list-item-name {
+                margin-top: 8px;
+                background-color: var(--btn-color-2);
+                width: 100%;
+                text-align: center;
+                padding: 3px 0;
+                color: var(--text-color);
+                border-radius: 3px;
+            }
 
+            // .upload-list-item-success {
+            //     color: rgb(127, 255, 47);
             // }
 
-            .upload-list-item-success {
-                color: rgb(127, 255, 47);
-            }
+            // .upload-list-item-failed {
+            //     color: rgb(181, 27, 27);
+            // }
 
-            .upload-list-item-failed {
-                color: rgb(181, 27, 27);
+            .upload-list-item-success,
+            .upload-list-item-failed,
+            .upload-list-item-pending {
+                position: absolute;
+                margin-top: calc(50% - 12px);
+                width: 24px;
+                height: 24px;
             }
         }
     }
@@ -117,28 +151,11 @@
         display: flex;
         align-items: center;
         margin-top: 1rem;
+        margin-left: 45px;
+        margin-bottom: 1.8rem;
 
-        .upload-submit {
-            background-color: rgba(236, 246, 244, 0.858);
-            padding: 0;
-            cursor: pointer;
-    
-            margin-left: 45px;
-    
-    
-            width: 8rem;
-            height: 1.8rem;
-    
-            border-radius: 0.9rem;
-    
-    
-    
-            &:hover:not(:disabled) {
-                scale: 1.02;
-            }
-    
-    
-        }
+        .upload-submit {}
+
         .upload-submit-spinner-container {
             margin-left: 20px;
             width: 25px;
@@ -155,19 +172,20 @@
 @media screen and (max-width: 600px) {
     .upload-wrapper {
         width: 95dvw;
-        height: 90dvh; 
+        height: 90dvh;
 
         .upload-top-row {
             .upload-close {
                 font-size: 26px;
             }
         }
-    
+
         // .upload-title {
         // }
-    
+
         .upload-input-container {
             padding-left: 45px;
+
             // .upload-input-label {
             //     #upload-input {
             //     }
@@ -178,7 +196,7 @@
                 // }
             }
         }
-    
+
         .upload-list-container {
             height: 500px;
             // .upload-list-item {
@@ -193,10 +211,10 @@
             //     // }
             // }
         }
-    
+
         // .upload-submit-container {
-            
-    
+
+
         //     .upload-submit {
         //     }
 
@@ -206,6 +224,6 @@
         //     }
 
         // }
-    
+
     }
 }

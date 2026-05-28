@@ -1,24 +1,29 @@
 .archy-popup-wrapper {
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
 
     display: flex;
     justify-content: center;
     align-items: center;
 
     background-color: rgba(122, 155, 197, 0.103);
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(10px);
 
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 10;
+    z-index: 15;
 
     .popup-box {
-        
-        background-color: white;
+
+        background-color: var(--bg-color);
         border-radius: 20px;
-        box-shadow: 0 0 23px 5px rgb(197 200 220);
+        // box-shadow: 0 0 5px 10px rgb(197 200 220);
+        // box-shadow: var(--shadow-1);
+        // box-shadow: 0 0 10px 3px rgb(197 200 220);
+        box-shadow: var(--shadow-2);
+        margin: 0 3vw;
+        color: var(--text-color);
 
     }
 }

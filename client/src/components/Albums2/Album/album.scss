@@ -1,0 +1,248 @@
+.album-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    height: calc(100dvh - var(--header-height) - var(--bottom-nav-height));
+    overflow-y: auto;
+    overflow-x: hidden;
+
+
+
+    // test
+    // align-items: center;
+
+    .album-top {
+        position: sticky;
+        top: 0;
+
+        z-index: 5;
+        background-color: var(--bg-color);
+        padding: 2vw 3vw;
+
+        .albums-btn-row {
+            display: flex;
+            align-items: stretch;
+            gap: 10px;
+            height: 5vh;
+
+            .back-btn {
+                margin-right: auto;
+                background: none;
+                border: solid 2px var(--btn-color-2);
+                color: var(--text-color);
+            }
+
+            .add-photos-btn {
+                font-size: 1.2rem;
+                background: var(--btn-color-2);
+                color: var(--text-color);
+
+                &.disabled {
+                    opacity: 0.35;
+                    pointer-events: none;
+                }
+            }
+
+            .select-btn {
+                background: none;
+
+                color: var(--text-color);
+
+                &.active {
+                    background: var(--btn-color-2);
+                    // color: #fff;
+                    color: var(--text-color);
+
+                }
+
+                .btn-icon {
+                    margin-inline: clamp(4px, 1vw, 10px);
+                }
+            }
+
+            .remove-btn {
+                background: var(--btn-color-2);
+                color: var(--text-color);
+            }
+
+            .btn-icon {
+                width: clamp(16px, 4vw, 28px);
+            }
+        }
+
+        .album-title {
+            margin: 3vh 0 2vh 0;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+    }
+
+    .album-photo-list-overflow {
+        width: 100%;
+        padding: 1%;
+        box-sizing: border-box;
+
+        overflow-y: scroll;
+
+
+
+
+        // // test
+        // display: flex;
+        // flex-direction: column;
+        // align-items: center;
+
+        &.dragging {
+            touch-action: none;
+            overscroll-behavior: contain;
+        }
+
+        // .album-photo-list {
+
+        //     display: grid;
+        //     position: relative;
+
+        //     .top-of-list {
+        //         position: absolute;
+        //     }
+
+        //     .drag-marker {
+        //         width: 1px;
+        //         grid-column: span 0.01;
+        //         // align-self: stretch;
+        //         background-color: var(--accent-color);
+        //         margin: 10px 0;
+        //         z-index: 100;
+        //         position: absolute;
+        //         // align-self: center;
+        //     }
+
+        // }
+
+
+
+
+
+
+
+        .album-photo-list {
+            display: flex;
+            flex-wrap: wrap;
+
+
+
+            // test
+            // justify-content: center;
+            justify-content: flex-start;
+
+            // width: fit-content;
+
+
+            .top-of-list {
+                position: absolute;
+            }
+
+
+            .drag-marker {
+                width: 1vw;
+                // grid-column: span 0.01;
+                align-self: stretch;
+                background-color: var(--accent-color);
+                // margin: 10px 0;
+                // z-index: 100;
+                // position: absolute;
+                // align-self: center;
+            }
+
+
+            .thumbnail-select-wrapper {
+                width: 23vw;
+
+
+                // 5 per row
+                @media (min-width: 600px) {
+                    width: calc(18vw - 5px);
+                }
+
+                // 6 per row
+                @media (min-width: 900px) {
+                    width: calc(14vw - 5px);
+                }
+
+                // 8 per row
+                @media (min-width: 1200px) {
+                    width: calc(11vw - 5px);
+                }
+
+                // 10 per row
+                @media (min-width: 1600px) {
+                    width: calc(9vw - 5px);
+                }
+
+                // ~12 per row
+                @media (min-width: 1920px) {
+                    width: calc(7.5vw - 5px);
+                }
+
+                // ~14 per row (ultrawide / 2K)
+                @media (min-width: 2560px) {
+                    width: calc(6vw - 5px);
+                }
+
+                // ~16 per row (4K TVs)
+                @media (min-width: 3840px) {
+                    width: calc(5vw - 5px);
+                    max-width: 220px;
+                }
+            }
+        }
+
+        .spinner {
+
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 12px;
+
+            img {
+                width: 48px;
+            }
+        }
+
+        .album-end-of-list,
+        .album-no-photos {
+            color: var(--text-color-2);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 2vh;
+        }
+    }
+}
+
+@media (max-width: 600px) {
+    .album-photo-list {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 600px) {
+    .album-photo-list {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+@media (min-width: 900px) {
+    .album-photo-list {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .album-photo-list {
+        grid-template-columns: repeat(7, 1fr);
+    }
+}

@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react'
 import { PopupContext } from '../../../Contexts/PopupContext'
 import { AuthContext } from '../../../Contexts/AuthContext'
 import { photoService } from '../../../services/photoService'
-import spinner from '../../../images/svgs/spinner.svg'
+import Spinner from '../../Spinner'
 import './photo-prev.scss'
 
 const IMAGE_STATUS = { LOADING: 'LOADING', READY: 'READY', FAILED: 'FAILED' }
@@ -35,7 +35,7 @@ const PhotoPrev = () => {
 
     return (
         <div className='photo-prev-container' >
-            {loading !== IMAGE_STATUS.READY ? <img className='photo-prev-spinner' src={spinner} /> : ''}
+            {loading !== IMAGE_STATUS.READY ? <Spinner className='photo-prev-spinner' /> : ''}
             <img className={`photo-prev-photo ${loading === IMAGE_STATUS.READY ? 'ready' : ''}`} onLoad={onLoad} src={url} alt='' />
         </div>
         

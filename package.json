@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "concurrently \"npm run dev_server\" \"npm run client\"",
-    "start": "concurrently \"npm run server\" \"npm run client\"",
     "client": "cd client && npm start",
     "server": "cd server && npm start",
-    "dev_server": "cd server && npm run dev"
+    "dev_server": "cd server && npm run dev",
+    "build": "cd client && npm install && npm run build",
+    "start": "cd server && npm start"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
   "dependencies": {
+    "argon2": "^0.44.0",
     "aws-sdk": "^2.1664.0"
   }
 }

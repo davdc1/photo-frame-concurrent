@@ -2,15 +2,32 @@
     display: flex;
     flex-direction: column;
 
-    padding: 20px 35px;
+    padding: 6vw 10vw;
+    // margin: 0 3vw;
+    min-width: 260px;
 
     .confirm-title {
-
+        margin: 1vh 4vw 3vh;
+        text-align: center;
+        line-height: 1.6;
     }
+
     .confirm-button-block {
         display: flex;
-    }
-    .confirm-button {
+        flex-direction: column;
 
+        .confirm-button {
+            margin: 1vh 4vw;
+
+            &.ok {
+                background: var(--btn-color);
+                color: var(--text-color);
+            }
+
+            &.cancel {
+                background: var(--btn-color-2);
+                color: var(--text-color);
+            }
+        }
     }
 }

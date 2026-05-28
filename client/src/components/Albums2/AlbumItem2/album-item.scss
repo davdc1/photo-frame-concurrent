@@ -1,0 +1,243 @@
+$album-item-height: 128vw;
+$album-item-max-height: 500px;
+$theRatio: 3.90625; // 500/128 = 3.90625
+
+
+.album-item-wrapper2 {
+
+    // width: 80vw;
+    // max-width: 250px;
+    // aspect-ratio: 1.7;
+    // aspect-ratio: 0.65;
+
+    height: $album-item-height;
+    max-height: $album-item-max-height;
+    aspect-ratio: 0.65; // makes width 90vw
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+    cursor: pointer;
+    position: relative;
+    border-radius: min(6vw, 19px);
+    box-shadow: 0 0 5px rgba(119, 119, 119, 1);
+
+    .album-item-menu-container {
+        position: absolute;
+        top: 5%;
+        right: 5%;
+        z-index: 1;
+
+        .album-item-menu-btn {
+            border: none;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(53, 53, 52, 0.6);
+            backdrop-filter: blur(20px);
+            width: min(6.3vw, 32px);
+            height: min(6.3vw, 32px);
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+
+            .album-item-dot {
+                width: min(0.8vw, 4px);
+                height: min(0.8vw, 4px);
+                border-radius: 50%;
+                background-color: #E5E2E1;
+                margin-top: min(0.5vw, 2.5px);
+
+                &:first-of-type {
+                    margin-top: 0;
+                }
+            }
+
+            // &:hover {}
+        }
+
+        .album-item-menu-dropdown {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            right: 0;
+            top: calc(1vw + min(7.3vw, 37px));
+            border-radius: min(3vw, 9px);
+            box-shadow: 0 0 5px rgb(75, 52, 52);
+            width: min(35vw, 180px);
+            background: var(--bg-color-2);
+
+            .album-item-btn {
+                padding: min(4vw, calc(4px * $theRatio));
+                border: none;
+                background: var(--bg-color-2);
+                color: var(--text-color);
+                text-align: left;
+
+                &.rename {
+                    border-radius: min(3vw, 9px) min(3vw, 9px) 0 0;
+                }
+
+                &.delete {
+                    border-radius: 0 0 min(3vw, 9px) min(3vw, 9px);
+                    color: rgb(194, 130, 130);
+
+                    &:hover {
+                        background-color: rgb(147, 0, 10, 0.2);
+                    }
+                }
+
+                cursor: pointer;
+
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.2);
+                }
+            }
+        }
+    }
+
+    .album-item-cover,
+    .album-item-skeleton {
+        width: 100%;
+        height: 80%;
+        background: var(--bg-color-2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: min(6vw, 19px) min(6vw, 19px) 0 0;
+    }
+
+    .album-item-skeleton {
+        border-bottom: solid 1px rgba(119, 119, 119, 0.5);
+        position: absolute;
+        top: 0;
+        z-index: 3;
+        overflow: hidden;
+
+        .album-skeleton-spinner {
+            z-index: 4;
+        }
+    }
+
+    .album-item-skeleton::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(90deg,
+                transparent,
+                var(--bg-color),
+                transparent);
+        animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+        100% {
+            transform: translateX(100%);
+        }
+    }
+
+    .album-item-cover {
+
+        object-fit: cover;
+
+        filter: brightness(0.85) contrast(1.1) saturate(1.15) grayscale(0.6);
+
+        &.empty {
+            background-color: var(--bg-color-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .album-item-empty {
+                font-size: min(5vw, calc(5px * $theRatio));
+                font-weight: 500;
+                color: var(--text-color-2);
+            }
+        }
+    }
+
+    .album-item-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        height: 20%;
+
+        border-radius: 0 0 min(6vw, 19px) min(6vw, 19px);
+        background-color: var(--bg-color-2);
+        box-sizing: border-box;
+        padding: min(4vw, calc(4px * $theRatio));
+
+        container-type: inline-size;
+
+        .album-item-text {
+            display: flex;
+            flex-direction: column;
+            align-items: left;
+            justify-content: center;
+            line-height: min(4.5vw, calc(4.5px * $theRatio));
+
+            .album-item-name {
+                font-size: min(5vw, calc(5px * $theRatio));
+                font-weight: 700;
+                color: var(--text-color);
+            }
+
+            .album-item-photo-count {
+                font-size: min(3.5vw, calc(3.5px * $theRatio));
+                font-weight: 500;
+                color: var(--text-color-2);
+                margin-top: min(0.8vw, calc(0.8px * $theRatio));
+            }
+
+            .edit-mode {
+                height: min(10vw, calc(10px * $theRatio));
+                display: flex;
+                align-items: stretch;
+                font-size: min(5vw, calc(5px * $theRatio));
+
+
+                .album-item-input {
+                    padding: min(3vw, calc(3px * $theRatio));
+                    // border-radius: 1vw;
+                    border-color: var(--border-color);
+                    color: var(--text-color);
+                    background: var(--btn-color-2);
+                }
+
+                .album-rename-ok {
+                    background: var(--btn-color);
+                    // border-radius: 1vw;
+                    border: none;
+                    width: min(10vw, calc(10px * $theRatio));
+                    margin-left: min(1vw, calc(1px * $theRatio));
+                }
+
+                .album-rename-cancel {
+                    background: var(--btn-color-2);
+                    // border-radius: 1vw;
+                    border: none;
+                    width: min(10vw, calc(10px * $theRatio));
+                    margin-left: min(1vw, calc(1px * $theRatio));
+                }
+
+                .album-item-spinner {
+                    margin-left: min(1vw, calc(1px * $theRatio));
+                }
+            }
+        }
+
+    }
+
+}

@@ -18,7 +18,7 @@ const ArchyPopup = () => {
     return popupType in popupTypes ? (
         <div onClick={closePopup} id={POPUP_ID} className={`archy-popup-wrapper ${popupType}`}>
             <div className='popup-box'>
-                {popupTypes[popupType]} 
+                {popupTypes[popupType]}
             </div>
         </div>
     ) : ''

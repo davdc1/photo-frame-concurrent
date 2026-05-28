@@ -3,8 +3,9 @@ import { AuthContext } from '../../Contexts/AuthContext'
 import { PopupContext } from '../../Contexts/PopupContext'
 import { useNavigate } from 'react-router-dom'
 import { photoService } from '../../services/photoService'
-import spinner from '../../images/svgs/spinner.svg'
-import './start-slide-show.scss'
+import { localStorageKeys } from '../../utils/consts'
+import Spinner from '../Spinner'
+import './start-slide-show2.scss'
 
 const PLAYING_ALBUM = 'PLAYING_ALBUM'
 const PLAYING_ALL = 'PLAYING_ALL'
@@ -29,36 +30,36 @@ const StartSlideShow = () => {
         // get stored session_id
         // if none, set to v1, see below
         // else, validate (retrive session)
-            // if ok: set v2
-            // else set v1
+        // if ok: set v2
+        // else set v1
 
         // v1: "currently playing all/playlists, would you like to:  (resume, all, playlist)"
         // v2: "would you like to play: (all, playlist)"
 
 
-        let session_id = JSON.parse(localStorage.getItem('photoSessionId') || "{}")
+        let session_id = JSON.parse(localStorage.getItem(localStorageKeys.PHOTO_SESSION_ID) || "{}")
 
         if (!session_id) {
             setLoading(false)
             setState(NO_SESSION)
         } else {
             setLoading(() => {
-                
+
                 photoService.retrieveSession({ session_id, user_id: userInfo.id })
-                .then((res) => {
-                    if (res.status === 200) {
-                        if (res.data.album_id) {
-                            setState(PLAYING_ALBUM)
-                        } else {
-                            setState(PLAYING_ALL)
+                    .then((res) => {
+                        if (res.status === 200) {
+                            if (res.data.album_id) {
+                                setState(PLAYING_ALBUM)
+                            } else {
+                                setState(PLAYING_ALL)
+                            }
+                        } else if (res.status === 201) {
+                            setState(NO_SESSION)
                         }
-                    } else if (res.status === 201) {
-                        setState(NO_SESSION)
-                    }
-                })
-                .catch(() => {})
-                .finally(() => setLoading(false))
-                
+                    })
+                    .catch(() => { })
+                    .finally(() => setLoading(false))
+
                 return true
 
             })
@@ -79,38 +80,38 @@ const StartSlideShow = () => {
     }
 
     const tempContent = {
-        startShow_Title: 'Start Slide Show',
-        startShow_Currently: 'currently playing',
-        startShow_All: 'all photos',
-        startShow_Playlist: 'playlist',
-        startShow_PromptText: 'would you like to:',
-        startShow_Resume: 'resume',
-        startShow_PlayAll: 'play all photos',
-        startShow_PlayPlaylist: 'play playlist',
-        startShow_Or: 'or'
+        StartSlideShow_Title: 'Start Slide Show',
+        StartSlideShow_Currently: 'Currently playing',
+        StartSlideShow_All: 'all photos',
+        StartSlideShow_Playlist: 'playlist',
+        StartSlideShow_PromptText: 'Would you like to:',
+        StartSlideShow_Resume: 'Resume',
+        StartSlideShow_PlayAll: 'Play all photos',
+        StartSlideShow_PlayPlaylist: 'Set a playlist',
+        StartSlideShow_Or: 'or'
     }
 
     return (
         <div className='start-show-wrapper'>
-            
-            <span className='start-show-title'>{tempContent.startShow_Title}</span>
+
+            <span className='start-show-title'>{tempContent.StartSlideShow_Title}</span>
 
             {loading ? (
-                <img src={spinner} className='start-show-spinner'/>
+                <Spinner className='start-show-spinner' />
             ) : (
                 <div className='start-show-body'>
                     {[PLAYING_ALBUM, PLAYING_ALL].includes(state) ?
-                    <>
-                        <span className='start-show-text-1'>
-                            {tempContent.startShow_Currently}
-                        </span>
-                        <span className='start-show-text-2'>
-                            {state === PLAYING_ALBUM ? tempContent.startShow_Playlist : tempContent.startShow_All}
-                        </span>
-                    </> : ''}
+                        <>
+                            <span className='start-show-text-1'>
+                                {tempContent.StartSlideShow_Currently}
+                            </span>
+                            <span className='start-show-text-2'>
+                                {state === PLAYING_ALBUM ? tempContent.StartSlideShow_Playlist : tempContent.StartSlideShow_All}
+                            </span>
+                        </> : ''}
 
                     <span className='start-show-prompt'>
-                        {tempContent.startShow_PromptText}
+                        {tempContent.StartSlideShow_PromptText}
                     </span>
                     <div className='start-show-buttons'>
                         {[PLAYING_ALBUM, PLAYING_ALL].includes(state) ?
@@ -120,9 +121,9 @@ const StartSlideShow = () => {
                                     onClick={navToFrame}
                                     className='start-show-button resume'
                                 >
-                                    {tempContent.startShow_Resume}
+                                    {tempContent.StartSlideShow_Resume}
                                 </button>
-                                <span className='start-show-or'>{tempContent.startShow_Or}</span>
+                                <span className='start-show-or'>{tempContent.StartSlideShow_Or}</span>
                             </div> : ''}
                         <div className='start-show-button-bottom'>
                             <button
@@ -130,14 +131,14 @@ const StartSlideShow = () => {
                                 onClick={navToFrame}
                                 className='start-show-button all_photos'
                             >
-                                {tempContent.startShow_PlayAll}
+                                {tempContent.StartSlideShow_PlayAll}
                             </button>
                             <button
                                 data-session={'playlist'}
                                 onClick={navToFrame}
                                 className='start-show-button playlist'
                             >
-                                {tempContent.startShow_PlayPlaylist}
+                                {tempContent.StartSlideShow_PlayPlaylist}
                             </button>
                         </div>
                     </div>

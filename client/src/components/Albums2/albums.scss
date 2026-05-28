@@ -1,0 +1,54 @@
+.albums-wrapper {
+    // color: darkseagreen;
+
+    // border: solid black 1px;
+
+    // border-radius: 10px;
+
+    // padding: 10px;
+    // margin: 10px;
+
+    padding: 2vw 0;
+    padding-bottom: var(--bottom-nav-height);
+
+
+
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .albums-controls {
+        display: flex;
+        justify-content: center;
+        padding: 2vw 4vw;
+
+        .album-con-btn {
+            border-radius: 12px;
+            padding: 12px 28px;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+
+            &:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+                filter: brightness(1.05);
+            }
+
+            &:active {
+                transform: translateY(0);
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+                filter: brightness(0.97);
+            }
+
+            .btn-icon {
+                margin-right: clamp(4px, 1vw, 10px);
+                width: clamp(24px, 2vw, 32px);
+            }
+        }
+    }
+
+}

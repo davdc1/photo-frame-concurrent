@@ -1,139 +1,62 @@
-// .frame-wrapper {
-//     width: 100vw;
-//     height: 100vh;
-
-//     display: flex;
-//     justify-content: center;
-
-//     // .frame-data {
-//     //     width: 300px;
-//     // }
-
-//     .frame-image {
-//         height: 100%;
-//         // align-self: stretch;
-//         &.opaque {
-//             opacity: 1;
-//             transition: opacity 1s linear;
-//         }
-
-//         &.transp {
-//             opacity: 0;
-//             transition: opacity 1s linear;
-//         }
-//     }
-
-//     .frame-buttons {
-        
-//     }
-
-//     .frame-keys-container {
-//         position: absolute;
-//         bottom: 100px;
-//         right: calc(50% - 50px);
-//         z-index: 10;
-//         .go-button {
-//             color: rgb(71, 67, 67);
-//         }
-//     }
-
-
-
-
-//     // test:
-//     .overflow-container {
-//         width: 100%;
-//         height: 100%;
-
-//         overflow-x: hidden;
-
-//         position: relative;
-//         .slider {
-//             display: flex;
-//             flex-direction: row-reverse;
-//             height: 100%;
-
-//             position: absolute;
-
-//             .img-wrapper {
-//                 width: 100vw;
-//                 height: 100vh;
-//                 @keyframes comeIn {
-//                     from {
-//                       opacity: 0
-//                     }
-                  
-//                     to {
-//                       opacity: 1;
-//                     }
-//                   }
-
-//                 &.in {
-//                     animation: comeIn 1s forwards;
-//                 }
-
-//                 &.out {
-//                     opacity: 0;
-//                     transition: opacity 1s linear;
-//                 }
-//                 .test-image {
-//                     height: 100%;
-
-
-//                 }
-//             }
-
-//         }
-
-//     }
-
-
-
-
-
-// }
-
-
-
-
-
-
+$noPhotosWidth: clamp(300px, 35dvw, 1000px);
+$noPhotosHeight: clamp(300px, 35dvh, 1000px);
 
 .frame-wrapper {
 
-    // height: 100vh;
-    // width: 100vw;
-
-    // display: flex;
-    // justify-content: center;
-    // align-items: center;
-
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh;
+    overflow: hidden;
 
     .container {
+        height: 100%;
+        // background-color: rgb(35, 35, 35);
+        background-color: black;
 
-        background-color: rgb(35, 35, 35);
+        &.no-photos {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .no-photos-box {
+            align-items: center;
+            position: absolute;
+            top: calc(50% - $noPhotosHeight / 2);
+            left: calc(50% - $noPhotosWidth / 2);
+            width: $noPhotosWidth;
+            height: $noPhotosHeight;
+            display: flex;
+            flex-direction: column;
+
+            a:visited {
+                text-decoration: none;
+                color: var(--text-color);
+            }
+        }
 
         .image-wrapper-type-3 {
 
-            height: 100vh;
+            height: 100%;
             width: 100vw;
-            background-color: rgb(35, 35, 35);
+            // background-color: rgb(35, 35, 35);
+            background-color: black;
 
             display: flex;
             justify-content: center;
-            
-            // .temp-image-text {
-            //     position: absolute;
-            //     top: 50%;
-            //     right: 50%;
-            //     color: black;
-            //     font-size: 48px;
-            //     font-weight: 600;
-            // }
+
+            /* --- ANTIGRAVITY ADDITION: Force GPU Layer for WebKit --- */
+            will-change: opacity, transform;
 
             .image-type-3 {
-                height: 100%;
-                background-color: rgb(35, 35, 35);
+                // height: 100%;
+                // width: 100vw;
+
+                width: 100vw;
+                height: 100dvh;
+                object-fit: contain;
+                background-color: black;
             }
 
             &.first {
@@ -145,47 +68,74 @@
             }
 
             &.second {
-                
+
                 position: absolute;
                 top: 0;
-                
+
                 z-index: 1;
                 opacity: 0;
             }
 
+            /* --- ORIGINAL CODE --- */
+            /*
             &.fade-in {
-                animation: fadeIn 1200ms forwards;
-                animation-delay: 1500ms;
+                // animation: fadeIn 2200ms forwards; // was 1200ms
+                // animation-delay: 1900ms; // was 1500ms
+                animation: fadeIn var(--transition-time-in) forwards;
+                animation-delay: var(--transition-delay);
             }
 
             &.fade-out {
-                animation: fadeOut 1s forwards;
+                // animation: fadeOut 2s forwards; // was 1s
+                animation: fadeOut var(--transition-time-out) forwards;
             }
 
-
-
-
             &.slide-in {
-                animation: slideIn 1s ease-in forwards;
-                animation-delay: 900ms;
+                animation: slideIn var(--transition-time-in) ease-in-out forwards;
+                animation-delay: var(--transition-delay);
             }
 
             &.slide-out {
-                transform: translateX(110%);
-                transition: all ease-in 1s;
+                animation: slideOut var(--transition-time-out) ease-in-out forwards;
+            }
+            */
+
+            /* --- ANTIGRAVITY ADDITION: WebKit Animation fixes (z-index layering & 'both' fill-mode) --- */
+            &.fade-in {
+                z-index: 3;
+                animation: fadeIn var(--transition-time-in) both;
+                animation-delay: var(--transition-delay);
             }
 
+            &.fade-out {
+                z-index: 2;
+                animation: fadeOut var(--transition-time-out) both;
+            }
 
+            &.slide-in {
+                z-index: 3;
+                animation: slideIn var(--transition-time-in) ease-in-out both;
+                animation-delay: var(--transition-delay);
+            }
+
+            &.slide-out {
+                z-index: 2;
+                animation: slideOut var(--transition-time-out) ease-in-out both;
+            }
 
             @keyframes fadeIn {
                 0% {
-                  opacity: 0
+                    opacity: 0
+                }
+
+                80% {
+                    opacity: 0.95;
                 }
 
                 100% {
-                  opacity: 1;
+                    opacity: 1;
                 }
-              }
+            }
 
             @keyframes fadeOut {
                 0% {
@@ -202,9 +152,20 @@
                     opacity: 1;
                     transform: translateX(-100%);
                 }
+
                 100% {
                     opacity: 1;
                     transform: translateX(0%);
+                }
+            }
+
+            @keyframes slideOut {
+                0% {
+                    transform: translateX(0%);
+                }
+
+                100% {
+                    transform: translateX(110%);
                 }
             }
 
@@ -213,12 +174,34 @@
 
     .frame-key-container {
         position: absolute;
-        bottom: 100px;
-        right: calc(50% - 50px);
+        bottom: 2dvh;
+        right: 2dvh;
         z-index: 10;
+        // width: 3dvw;
+        min-width: 30px;
+
+        display: flex;
+        flex-direction: column;
+        gap: 0.9vw;
+        align-items: stretch;
+
+
+        .frame-full-screen-btn,
         .go-button {
-            color: rgb(71, 67, 67);
+            padding: clamp(16px, 2vw, 32px);
+            text-align: center;
+            background: rgba(57 57 57 / 55%);
+
+            img {
+                width: clamp(40px, 3vw, 100px);
+            }
         }
+
+        // @media screen and (max-width: 600px) {
+        //     bottom: 8dvh;
+        // }
+
+
     }
 
     .empty-que-spinner {

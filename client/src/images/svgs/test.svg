@@ -1,0 +1,36 @@
+<svg width="400" height="800" viewBox="0 0 400 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .wave {
+      animation: waveMove 22s linear infinite;
+    }
+    
+    .wave1 { animation-duration: 2s; }
+    .wave2 { animation-duration: 3s; }
+    .wave3 { animation-duration: 5s; }
+    .wave4 { animation-duration: 8s; }
+    
+    @keyframes waveMove {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-120px); }
+    }
+  </style>
+
+  <rect width="400" height="800" fill="#F7F9FE"/>
+
+  <!-- Slow moving waves with different speeds (parallax effect) -->
+  <g class="wave wave1">
+    <path d="M0 200C100 150 200 250 300 200C400 150 500 250 600 200V800H0V200Z" fill="#E1E9F4" opacity="0.5"/>
+  </g>
+
+  <g class="wave wave2">
+    <path d="M-100 300C50 250 150 350 300 300C450 250 550 350 700 300V800H-100V300Z" fill="#D2DEEE" opacity="0.4"/>
+  </g>
+
+  <g class="wave wave3">
+    <path d="M0 450C120 400 250 500 350 450C450 400 550 500 650 450V800H0V450Z" fill="#C3D3E8" opacity="0.3"/>
+  </g>
+
+  <g class="wave wave4">
+    <path d="M-50 600C80 550 220 650 350 600C480 550 600 650 720 600V800H-50V600Z" fill="#B4C8E2" opacity="0.2"/>
+  </g>
+</svg>

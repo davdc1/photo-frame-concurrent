@@ -3,39 +3,67 @@ const path = require('path');
 const connection = require('../data/connect')
 const { v4: uuidv4 } = require('uuid');
 
-
 const Session = require('../models/Session');
 const Photo = require('../models/Photo');
 const AlbumPhoto = require('../models/AlbumPhoto');
 const Album = require('../models/Album');
 const User = require('../models/User');
 
-
 const AWS = require('aws-sdk');
-AWS.config.update({
+// AWS.config.update({
+//     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+//     region: process.env.AWS_S3_REGION,
+// })
+// const s3 = new AWS.S3();
+
+const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_S3_REGION,
-})
-const s3 = new AWS.S3();
+});
+const sqs = new AWS.SQS({ region: 'eu-north-1' })
 
+const getUserPhotoCount = async ({ req, res }) => {
+    try {
+        const result = await Photo.query()
+            .where({ user_id: req.user.id })
+            .count('* as count')
+            .first()
+
+        res.status(200).send({ count: result.count })
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error)
+    }
+}
 
 const startNewSession = async ({ req, res }) => {
 
     try {
-        
-        console.log('startNewSession');
-        const { startWith, album_id, user_id } = req.query
+
+        const { startWith, album_id } = req.query
+
+        if (album_id) {
+            const albumVerified = await Album.query()
+                .where({ id: album_id, user_id: req.user.id })
+                .first()
+
+            if (!albumVerified) {
+                return res.status(400).end()
+            }
+        }
+
         let session
         if (album_id) {
             session = await Session.query().insert({
-                user_id,
+                user_id: req.user.id,
                 album_id
             })
         } else {
             session = await Session.query().insert({
-                user_id,
-                photo_id: startWith || 1
+                user_id: req.user.id,
+                photo_id: startWith || 1 // user's authorization to the photo id is checked when retrieving it.
             })
         }
 
@@ -44,21 +72,20 @@ const startNewSession = async ({ req, res }) => {
     } catch (error) {
         console.log(error);
         res.status(500).send(error)
-    }        
+    }
 }
 
 const retrieveSession = async ({ req, res }) => {
     try {
-        const { session_id, user_id } = req.query
+        const { session_id } = req.query
         // const session = await Session.query().findById(session_id)
         const session = await Session.query().where({
             id: session_id,
-            user_id
+            user_id: req.user.id
         })
-        .first()
+            .first()
 
         if (session) {
-            console.log('sesssssss', session);
             res.status(200).send(session)
         } else {
             res.status(201).send('invalid')
@@ -73,23 +100,41 @@ const retrieveSession = async ({ req, res }) => {
 const getSessionPhoto = async ({ req, res }) => {
 
     try {
-        let { session_id, album_id, user_id } = req.query
+        let { session_id, album_id, random } = req.query
 
-        console.log('req.query', req.query);
+        // const session = await Session.query().findById(session_id) // + req.user.id
 
-        const session = await Session.query().findById(session_id)
+        const session = await Session.query()
+            .where({ id: session_id, user_id: req.user.id })
+            .first()
+
+        if (!session) {
+            return res.status(400).send('session not found')
+        }
 
         let nextPhoto
 
         if (album_id) {
-            // first album-photo
-            nextPhoto = await getFirstAlbumPhoto({ album_id })
+            // first album-photo in album      
+            nextPhoto = await getFirstAlbumPhoto({ album_id, user_id: req.user.id })
+
+            if (!nextPhoto) {
+                return res.status(400).send('album mismatch')
+            }
+
             session.album_id = album_id
             session.photo_id = nextPhoto.photo_id
+            session.order = nextPhoto.order
             await session.$query().patch()
+
         } else if (session.album_id) {
             // next album-photo
-            const lastPhoto = await getLastAlbumPhoto({ album_id: session.album_id })
+            const lastPhoto = await getLastAlbumPhoto({ album_id: session.album_id, user_id: req.user.id })
+
+            if (!lastPhoto) { // could mean req.user.id and album_id don't match. or album is empty.
+                return res.status(400).send('album mismatch')
+            }
+
             nextPhoto = await getNextAlbumPhoto({ album_id: session.album_id, startAtOrder: session.order + 1 })
             session.photo_id = nextPhoto.photo_id
             session.order = nextPhoto.order
@@ -100,66 +145,40 @@ const getSessionPhoto = async ({ req, res }) => {
 
             await session.$query().patch()
         } else {
+
+
             // next photo all-photos
-            nextPhoto = await getNextUserPhoto({ user_id, startAt: session.photo_id + 1 })
+            if (random) {
+                console.log('RANDOM', random);
+                nextPhoto = await getRandomUserPhoto({ user_id: req.user.id })
+            } else {
+                console.log('NOT RANDOM');
+                nextPhoto = await getNextUserPhoto({ user_id: req.user.id, startAt: session.photo_id + 1 })
+            }
+
+            if (!nextPhoto) {
+                return res.status(400).send('an error occurred')
+            }
             session.photo_id = nextPhoto.photo_id
             await session.$query().patch()
         }
 
-        console.log('nextPhoto', nextPhoto);
-
         let albumId = album_id || session.album_id || ''
 
-
-        // send file
-        // TODO:
-        // add last_in_album
-        
-        // let options = {
-        //     root:  path.join(__dirname, '../', '/public/images')
-        // }
-
-        // console.log(`${nextPhoto.name}.${nextPhoto.ext}`);
-
-        // res.sendFile(`${nextPhoto.name}.${nextPhoto.ext}`, options, (error) => {
-        //     if (error) {
-        //         console.log('error. getSessionPhoto', error);
-        //         res.status(500).send(error)
-        //     }
-        // })
-
-        
-
-        // send url (temp)
-        // let url = path.join('images', `/${nextPhoto.name}.${nextPhoto.ext}`)
-        // return res.status(200).send({ url, ...nextPhoto, album_id: albumId, last_in_album: nextPhoto.last_in_album }) // either signed url or file. + metadata
-
-
-
-        // signed url:
-        // const params = {
-        //     Bucket: process.env.AWS_BUCKET,
-        //     Key: `user-uploads/${user_id}/${nextPhoto.name}`,
-        //     Expires: 60 * 10, // seconds. consider setting dynamiclly according to user's slideshow settings
-        // };
-            
-        // s3.getSignedUrl('getObject', params, (err, url) => {
-        //     if (err) console.log('getSigendUrl error', err);
-        //     return res.status(200).send({ url, ...nextPhoto, album_id: albumId, last_in_album: nextPhoto.last_in_album })
-        // })
-
         try {
-            const url = await getPhotoUrl({ user_id, photoName: nextPhoto.name })
+            const url = await getPhotoUrl({ user_id: req.user.id, photoName: nextPhoto.name })
             return res.status(200).send({ url, ...nextPhoto, album_id: albumId, last_in_album: nextPhoto.last_in_album })
         } catch (error) {
             // ?????
         }
-        
+
+
+
     } catch (error) {
         console.log('getSessionPhoto', error);
         return res.status(500).send('eror')
     }
-    
+
 }
 
 const getPhotoUrl = ({ user_id, photoName, thumbnail }) => {
@@ -169,7 +188,7 @@ const getPhotoUrl = ({ user_id, photoName, thumbnail }) => {
     const params = {
         Bucket: process.env.AWS_BUCKET,
         Key: `user-uploads/${user_id}/${path}`,
-        Expires: 60 * 10,
+        Expires: 60 * 60,
     };
 
     return new Promise((resolve, reject) => {
@@ -180,7 +199,7 @@ const getPhotoUrl = ({ user_id, photoName, thumbnail }) => {
             }
 
             resolve(url)
-            
+
         })
     })
 }
@@ -191,11 +210,12 @@ const getPhotoById = async ({ req, res }) => {
         const { photo_id, user_id } = req.query
 
         const { name } = await Photo.query()
-            .findById(photo_id)
+            .where({ id: photo_id, user_id: req.user.id })
+            .first()
 
         const url = await getPhotoUrl({ user_id, photoName: name })
 
-        return res. status(200).send({ url })
+        return res.status(200).send({ url })
     } catch (error) {
         console.log('getPhotoPrev', error);
         return res.status(500).send(error)
@@ -204,31 +224,32 @@ const getPhotoById = async ({ req, res }) => {
 
 const getUserThumbnails = async ({ req, res }) => {
     try {
-        const { user_id, page, perPage } = req.query
+        const { page, perPage } = req.query
 
-        console.log('page, perPage', page, perPage);
+        const lastPhoto = await Photo.query()
+            .where({ user_id: req.user.id })
+            .orderBy('id', 'desc')
+            .first()
 
         let photos = await Photo.query()
             .select('*')
             .where({
-                user_id,
+                user_id: req.user.id,
                 active: 1
             })
             .page(page - 1, perPage)
 
-        // console.log('getthem photos', photos);
-
         let promises = []
         for (const photo of photos.results) {
             promises.push(
-                getPhotoUrl({ user_id, photoName: photo.name, thumbnail: true })
+                getPhotoUrl({ user_id: req.user.id, photoName: photo.name, thumbnail: true })
                     .then((url) => photo.url = url)
             )
         }
-       await Promise.allSettled(promises)
+        await Promise.allSettled(promises)
 
-       return res.status(200).send(photos)
-        
+        return res.status(200).send({ photos, lastPhoto })
+
     } catch (error) {
         console.log('getUserThumbnails', error);
         res.status(500).send(error)
@@ -244,7 +265,7 @@ const getSessionPhoto1 = async ({ req, res }) => {
         const lastPhoto = await Photo.query().orderBy('id', 'desc').first()
         let currentPhotoId = session.photo_id // + 1
         let photo
-        
+
         while (!photo || photo.active == false) {
             console.log(photo);
             photo = await Photo.query().findById(currentPhotoId)
@@ -254,16 +275,12 @@ const getSessionPhoto1 = async ({ req, res }) => {
             }
         }
 
-        
         let sessionUpdated = await Session.query()
             .patchAndFetchById(session_id, { photo_id: currentPhotoId })
 
-
         let options = {
-            root:  path.join(__dirname, '../', '/public/images')
+            root: path.join(__dirname, '../', '/public/images')
         }
-
-        console.log(`${photo.name}.${photo.ext}`);
 
         res.sendFile(`${photo.name}.${photo.ext}`, options, (error) => {
             if (error) {
@@ -271,8 +288,6 @@ const getSessionPhoto1 = async ({ req, res }) => {
                 res.status(500).send(error)
             }
         })
-
-
 
 
         // let meta = {
@@ -288,28 +303,26 @@ const getSessionPhoto1 = async ({ req, res }) => {
         // res.json({ meta, image: image.toString('base64') })
         // // res.status(201).json({ meta })
 
-
-
-
-        
     } catch (error) {
         console.log(error);
         res.status(500).send(error)
-    } 
+    }
 }
 
 const uploadPhotos = async ({ req, res }) => {
-    // recieve up to 10 file-data objs
-    // give unique names
-    // insert file data to table:photos and table:album_photos if necessary
-    // lop through file and create upload urls
-    // respond to client with: objs, each containing url, unique name, id
-
-
-
     try {
-        const { files, user_id, album_id, startAtOrder } = req.body
-       
+        const { files, album_id, startAtOrder } = req.body
+
+        if (album_id) {
+            let albumVerified = await Album.query()
+                .where({ id: album_id, user_id: req.user.id })
+                .first()
+
+            if (!albumVerified) {
+                return res.status(400).send('album not found')
+            }
+        }
+
         // insert file data
         let insertPhotos = []
         for (const file of files) {
@@ -319,24 +332,34 @@ const uploadPhotos = async ({ req, res }) => {
                 name: file.name,
                 name_user: file.name_user,
                 ext: file.ext,
-                user_id,
-                active: 1
+                user_id: req.user.id,
+                active: 1,
+                ...file.meta,
+                location: file.meta.location
+                    ? connection.raw(
+                        "ST_SRID(POINT(?, ?), 4326)",
+                        [file.meta.location.lng, file.meta.location.lat]
+                    )
+                    : connection.raw(
+                        "ST_SRID(POINT(0, 0), 4326)"
+                    ),
+                has_location: file.meta.location ? true : false
             })
-
         }
-        
+
         try {
             await connection('photos').insert(insertPhotos)
         } catch (error) {
             // ?????
         }
 
-        if (album_id) { 
+        if (album_id) {
             try {
+
                 let photos = await Photo.query()
                     .whereIn('name', insertPhotos.map(({ name }) => name))
                     .orderBy('id', 'asc')
-    
+
                 let insertAlbumPhotos = photos.map(({ id }, idx) => {
                     return { photo_id: id, album_id, order: startAtOrder + 1 + idx }
                 })
@@ -345,7 +368,7 @@ const uploadPhotos = async ({ req, res }) => {
                 // ?????
             }
         }
-    
+
         // create urls:
         const getUrlPromise = (file, thumbnail) => {
 
@@ -354,11 +377,11 @@ const uploadPhotos = async ({ req, res }) => {
 
             const params = {
                 Bucket: process.env.AWS_BUCKET,
-                Key: `user-uploads/${user_id}${thumbnailPath}/${thumbnailName}${file.name}`,
+                Key: `user-uploads/${req.user.id}${thumbnailPath}/${thumbnailName}${file.name}`,
                 ContentType: 'image/jpeg',
                 Expires: 60 * 5
             }
-            
+
             return new Promise((resolve, reject) => {
                 s3.getSignedUrl('putObject', params, (error, url) => {
                     if (error) {
@@ -369,7 +392,7 @@ const uploadPhotos = async ({ req, res }) => {
                 })
             })
         }
-        
+
         for (const file of files) {
             try {
                 let url = await getUrlPromise(file)
@@ -382,7 +405,7 @@ const uploadPhotos = async ({ req, res }) => {
         }
 
         return res.status(200).send(files)
-        
+
     } catch (error) {
         console.log('uploadPhotos', error);
         return res.status(500).send('test')
@@ -390,18 +413,52 @@ const uploadPhotos = async ({ req, res }) => {
 
 }
 
+const confirmUpload = async ({ req, res }) => {
+    try {
+        const { name } = req.body
+
+        let photo = await Photo.query()
+            .where('name', name)
+            .andWhere('user_id', req.user.id)
+            .first()
+
+        if (!photo) {
+            return res.status(404).send('photo not found')
+        }
+
+        // message sqs with photo id, trigger embedding worker:
+        let sqsResponse = await sqs.sendMessage({
+            QueueUrl: process.env.SQS_QUEUE_URL,
+            MessageBody: JSON.stringify({
+                photoId: photo.id,
+                userId: photo.user_id,
+                s3Key: `user-uploads/${photo.user_id}/${photo.name}`
+            })
+        }).promise()
+
+        console.log('sqsResponse', sqsResponse);
+
+        return res.status(200).send(photo)
+    } catch (error) {
+        console.log('confirmUpload', error);
+        return res.status(500).send('error')
+    }
+}
+
 const deleteFailedUpload = async ({ req, res }) => {
-    
+
     try {
         const { name } = req.query
 
         let albumPhotoDelete = await AlbumPhoto.query()
             .leftJoin('photos', 'album_photos.photo_id', 'photos.id')
             .where('photos.name', name)
+            .andWhere('photos.user_id', req.user.id)
             .delete()
 
         let photoDelete = await Photo.query()
             .where('name', name)
+            .andWhere('user_id', req.user.id)
             .delete()
 
         return res.status(200).send({ photoDelete, albumPhotoDelete })
@@ -411,57 +468,48 @@ const deleteFailedUpload = async ({ req, res }) => {
     }
 }
 
-const delay = (time) => new Promise((resolve) => setTimeout(() => resolve(), time))
-
 const deletePhotos = async ({ req, res }) => {
     try {
 
-        await delay(3000)
-
-        const { ids, user_id } = req.query
-
-        console.log('deletePhotos', ids);
+        const { ids } = req.query
 
         let photos = await Photo.query()
             .whereIn('id', ids)
-            .andWhere('user_id', user_id) // just in case. but must use auth !!
-
-        console.log('photoso', photos);
+            .andWhere('user_id', req.user.id)
 
         let promises = []
 
         for (const photo of photos) {
             promises.push(
-                deletePhotoPromise(user_id, photo.name, false),
-                deletePhotoPromise(user_id, photo.name, true)
+                deletePhotoPromise(req.user.id, photo.name, false),
+                deletePhotoPromise(req.user.id, photo.name, true)
             )
         }
 
         await Promise.allSettled(promises)
-        .then((res) => console.log('all setteled', res))
+            .then((res) => console.log('all setteled', res))
 
         let deletedFromAlbum = await AlbumPhoto.query()
+            .leftJoin('albums', 'albums.id', 'album_photos.album_id')
             .whereIn('photo_id', ids)
+            .andWhere('albums.user_id', req.user.id)
             .delete()
 
-        console.log('deletedFromAlbum', deletedFromAlbum);
-       
+
         let deletedPhotos = await Photo.query()
             .whereIn('id', ids)
-            .andWhere('user_id', user_id)
+            .andWhere('user_id', req.user.id)
             .delete()
 
         console.log('deletedPhotos', deletedPhotos);
 
-
         res.status(200).send('ok')
-        
+
     } catch (error) {
         console.log('deletePhotos', error);
         res.status(500).send(error)
     }
 }
-
 
 const deletePhotoPromise = (user_id, name, thumbnail) => {
     let thumbnailPath = thumbnail ? '/thumbnails' : ''
@@ -475,7 +523,7 @@ const deletePhotoPromise = (user_id, name, thumbnail) => {
     return new Promise((resolve, reject) => {
         s3.deleteObject(params, (error, res) => {
             if (error) {
-                console.log(`erorr while delting photo: ${name}`, error);
+                console.log(`error while delting photo: ${name}`, error);
                 reject(error)
             } else {
                 resolve(res)
@@ -485,81 +533,12 @@ const deletePhotoPromise = (user_id, name, thumbnail) => {
 }
 
 const testConnection = async ({ req, res }) => {
-
-
     try {
-        // 
 
-        // const params = {
-        //     Bucket: process.env.AWS_BUCKET,
-        //     Key: 'user-uploads/11123/testFile',
-        //     // Body: "hello there is your test file",
-        //     // ContentType: 'txt'
-        // };
+        console.log('testConnection');
 
-        // let data = await s3.upload(params).promise()
+        return res.status(200).send('ok')
 
-
-        // let data2 = await s3.getObject(params).promise()
-        // let filePath = path.join(__dirname, '../', '/public/texts/that.txt')
-        // writeFileSync(filePath, data2.Body)
-
-
-        
-        // const params = {
-            //     Bucket: process.env.AWS_BUCKET,
-            //     Key: `user-uploads/11123/testFile`,
-            //     Expires: 60 * 10, // URL expiry time in seconds
-            //   };
-            
-            
-        // s3.getSignedUrl('getObject', params, (err, url) => {
-            //     if (err) console.log('getSigendUrl error', err);
-            
-            //     console.log('downloadUrl: ', url);
-            // })
-
-        const params = {
-            Bucket: process.env.AWS_BUCKET,
-            Key: `user-uploads/11123/imgmg.jpeg`,
-            Expires: 60 * 10, // URL expiry time in seconds
-            ContentType: 'image/jpeg'
-            };
-
-        let uploadUrl
-        s3.getSignedUrl('putObject', params, (err, url) => {
-            if (err) {
-                return res.status(500).json({ error: 'Error generating pre-signed URL' });
-            }
-            console.log('UPLOAD URL: ', url);
-            uploadUrl = url
-
-            let file = readFileSync(path.join(__dirname, '../', '/public/images/1581428816563877124.jpeg'))
-
-            console.log('FILE', file);
-
-            fetch(uploadUrl, {
-                method: 'PUT',
-                headers: {
-                'Content-Type': 'image/jpeg'
-                },
-                body: file
-            })
-            .then(async (res) => {
-                let ttt = await  res.text()
-                console.log('RESPONSE TEXT', ttt);
-            })
-            .catch((errrr) => {
-                console.log('ERRRRR', errrr);
-            })
-
-        });
-
-
-        let result = await Album.query()
-        let user = await User.query()
-
-        res.status(200).send({ result, user })
     } catch (error) {
         console.log(error);
         res.status(500).send('connection error', error)
@@ -570,7 +549,6 @@ const serveUploadPage = async ({ req, res }) => {
     try {
 
         console.log('serveUploadPage');
-
 
         const options = {
             root: path.join(__dirname, '../', 'public/views', 'uploadPhoto.html'),
@@ -589,76 +567,29 @@ const serveUploadPage = async ({ req, res }) => {
         // res.sendFile('uploadPhoto.html', options, (error) => {
         //     if (error) throw error
         // })
-        
+
     } catch (error) {
         console.log(error);
         res.status(500).send('cannot serve page')
     }
 }
 
-const uploadPhoto = async ({ req, res }) => {
-    try {
-
-
-        console.log(req.files);
-        // output:
-        // [
-        //     {
-        //         fieldname: 'fileToUpload',
-        //         originalname: 'IMG_9696.jpeg',
-        //         encoding: '7bit',
-        //         mimetype: 'image/jpeg',
-        //         destination: '/Users/davidcohen/Desktop/java script things.nosync/photo-thing/back/uploads',
-        //         filename: 'IMG_9696.jpeg',
-        //         path: '/Users/davidcohen/Desktop/java script things.nosync/photo-thing/back/uploads/IMG_9696.jpeg',
-        //         size: 2078077
-        //       }
-        // ]
-
-
-
-        let insertArray = []
-
-        req.files.forEach(({ filename }) => {
-            let [name, ext] = filename.split('.')
-            insertArray.push({ name, ext })
-        });
-
-        for (let i = 0; i < insertArray.length; i++) {
-            let res = await Photo.query().insert(insertArray[i])
-            console.log(`res ${i}`, res);
-
-            // output:
-            // Photo { name: 'IMG_9757', ext: 'jpeg', id: 30 }
-        }
-
-
-
-        res.status(200).end() // send('ok')
-        
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error)
-    }
-}
-
-
 const validateFiles = async ({ req, res }) => {
     try {
-        
+
 
         let { list } = req.body
-         
-        let existObj = {  }
+
+        let existObj = {}
         for (let i = 0; i < list.length; i++) {
             let res = await Photo.query().where({ name: list[i].name })
             console.log('res', Array.isArray(res));
             if (res.length) existObj[i] = list[i].name
         }
 
-        
+
         res.status(200).send(existObj)
-       
+
         // console.log(fileData);
         // { name, size, type, idx }
 
@@ -677,8 +608,7 @@ const validateFiles = async ({ req, res }) => {
     }
 }
 
-
-const getFirstAlbumPhoto = async ({ album_id }) => {
+const getFirstAlbumPhoto = async ({ album_id, user_id }) => {
     let albumPhoto = await AlbumPhoto.query()
         .select(
             'album_photos.photo_id',
@@ -688,9 +618,11 @@ const getFirstAlbumPhoto = async ({ album_id }) => {
             'photos.active'
         )
         .leftJoin('photos', 'photos.id', 'album_photos.photo_id')
+        .leftJoin('albums', 'albums.id', 'album_photos.album_id')
         .where({
             album_id,
-            'photos.active': 1
+            'photos.active': 1,
+            'albums.user_id': user_id
         })
         .andWhereNot('photos.id', null)
         .orderBy('order', 'ASC')
@@ -698,7 +630,7 @@ const getFirstAlbumPhoto = async ({ album_id }) => {
     return albumPhoto
 }
 
-const getLastAlbumPhoto = async ({ album_id }) => {
+const getLastAlbumPhoto = async ({ album_id, user_id }) => {
     let albumPhoto = await AlbumPhoto.query()
         .select(
             'album_photos.photo_id',
@@ -708,9 +640,11 @@ const getLastAlbumPhoto = async ({ album_id }) => {
             'photos.active'
         )
         .leftJoin('photos', 'photos.id', 'album_photos.photo_id')
+        .leftJoin('albums', 'albums.id', 'album_photos.album_id')
         .where({
             album_id,
-            'photos.active': 1
+            'photos.active': 1,
+            'albums.user_id': user_id
         })
         .andWhereNot('photos.id', null)
         .orderBy('order', 'DESC')
@@ -718,6 +652,47 @@ const getLastAlbumPhoto = async ({ album_id }) => {
     return albumPhoto
 }
 
+// TODO. internal.
+const getRandomUserPhoto = async ({ user_id }) => {
+
+    const [{ min, max }] = await Photo.query()
+        .min('id AS min')
+        .max('id AS max')
+        .where('user_id', user_id)
+        .andWhereNot('active', null)
+
+    let randId = min + Math.floor(Math.random() * (max - min + 1))
+
+    let photo = await Photo.query()
+        .select(
+            'photos.id AS photo_id',
+            'photos.name',
+            'photos.ext'
+        )
+        .where('photos.user_id', user_id)
+        .andWhere('photos.id', '>=', randId)
+        .andWhereNot('photos.active', null)
+        .orderBy('photos.id', 'ASC')
+        .first()
+
+    if (!photo) {
+        photo = await Photo.query()
+            .select(
+                'photos.id AS photo_id',
+                'photos.name',
+                'photos.ext'
+            )
+            .where('photos.user_id', user_id)
+            .andWhere('photos.id', '<=', randId)
+            .andWhereNot('photos.active', null)
+            .orderBy('photos.id', 'ASC')
+            .first()
+    }
+
+    return photo
+}
+
+// todo: function should not be exposed (since its not going through auth). consider enforcing.
 const getNextUserPhoto = async ({ user_id, startAt }) => {
     let fullRound = false
     let stop = false
@@ -728,7 +703,6 @@ const getNextUserPhoto = async ({ user_id, startAt }) => {
                 'photos.name',
                 'photos.ext'
             )
-            // .leftJoin('')
             .where('photos.user_id', user_id)
             .andWhere('photos.id', '>=', startAt)
             .andWhereNot('photos.active', null)
@@ -750,7 +724,7 @@ const getNextAlbumPhoto = async ({ album_id, startAtOrder }) => {
     let fullRound = false
     let stop = false
     while (!stop) {
-        
+
         let nextPhoto = await AlbumPhoto.query()
             .select(
                 'photo_id',
@@ -767,82 +741,36 @@ const getNextAlbumPhoto = async ({ album_id, startAtOrder }) => {
             .andWhereNot('photos.id', null)
             .orderBy('order', 'ASC')
             .first()
-        
-            if (!nextPhoto) {
-                if (!fullRound) {
-                    fullRound = true
-                    startAtOrder = 1
-                } else {
-                    stop = true // return null ?
-                }
-            } else return nextPhoto
-                    
+
+        if (!nextPhoto) {
+            if (!fullRound) {
+                fullRound = true
+                startAtOrder = 1
+            } else {
+                stop = true // return null ?
+            }
+        } else return nextPhoto
+
     }
 
 }
 
-
 module.exports = {
+    getUserPhotoCount,
     startNewSession,
     retrieveSession,
     getSessionPhoto,
-    getSessionPhoto1,
+    // getSessionPhoto1,
     testConnection,
     serveUploadPage,
-    uploadPhoto,
+    // uploadPhoto,
     uploadPhotos,
+    confirmUpload,
     deleteFailedUpload,
     deletePhotos,
-    validateFiles,
+    // validateFiles,
     getPhotoById,
-    getUserThumbnails
+    getUserThumbnails,
+    // filterPhotos,
+    getPhotoUrl
 }
-
-// const getNextAlbumPhoto = async ({ album_id, startAtOrder }) => {
-//     let lastInAlbum = await getLastAlbumPhoto({ album_id })
-//     let fullRound = false
-//     let stop = false
-//     while (!stop) {
-//         if (startAtOrder > lastInAlbum.order) {
-//             if (!fullRound) {
-//                 fullRound = true
-//                 startAtOrder = 1
-//             } else {
-//                 stop = true
-//             }
-//         }
-        
-//         let albumOrder = await AlbumPhoto.query()
-//             .select('photo_id', 'order')
-//             .leftJoin('photos', 'photos.id', 'album_photos.photo_id')
-//             .where({
-//                 album_id,
-//                 'photos.active': 1
-//             })
-//             .andWhere('order', '>=', startAtOrder)
-//             .andWhereNot('photos.id', null)
-//             .orderBy('order', 'ASC')
-//             .limit(5)
-
-//         console.log('albumOrder', albumOrder);
-                    
-//         let nextPhoto
-    
-//         let i = 0
-//         while (i <= 4) {
-//             nextPhoto = await Photo.query()
-//                 .findById(albumOrder[i].photo_id)
-
-//             if (nextPhoto) {
-//                 nextPhoto.order = albumOrder[i].order
-//                 console.log('here', nextPhoto);
-//                 return nextPhoto
-//             }
-//             else if (i === 4) {
-//                 startAtOrder += 5
-//                 break
-//             } else i++
-//         }
-//     }
-
-// }

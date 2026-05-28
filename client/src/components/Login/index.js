@@ -7,7 +7,7 @@ import './login.scss'
 
 const Login = () => {
 
-    const { userInfo, /*setUserInfo,*/ login } = useContext(AuthContext)
+    const { login } = useContext(AuthContext)
     const [inputs, setInputs] = useState({ email: '', password: '' })
     const [loading, setLoading] = useState(false)
 
@@ -30,7 +30,7 @@ const Login = () => {
                 if (location.state?.from) {
                     navigate(location.state.from)
                 } else {
-                    navigate('/auth/main-menu')
+                    navigate('/auth/photos')
                 }
             })
             .catch((error) => {
@@ -43,9 +43,10 @@ const Login = () => {
     }
 
     const content = {
-        loginTitle: 'login...',
+        loginTitle: 'Login...',
         loginSubmit: 'go',
-        loading: 'loading'
+        loading: 'Loading',
+        register: 'Create an acount'
     }
 
     return (
@@ -71,6 +72,7 @@ const Login = () => {
                         {content.loginSubmit}
                     </button>
                     {loading ? <span>{content.loading}</span> : ''}
+
                 </div>
             </div>
         </div>

@@ -1,12 +1,15 @@
 import { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../../../Contexts/AuthContext'
 import { PopupContext } from '../../../Contexts/PopupContext'
+import Spinner from '../../Spinner'
 import { photoService } from '../../../services/photoService'
 import resizeImage from '../../../utils/resizeImage'
-import spinner from '../../../images/svgs/spinner.svg'
+import { extractMeta } from '../../../utils/exif'
+import checkmark from '../../../images/svgs/checkmark.svg'
+import failed from '../../../images/svgs/fail.svg'
 import './upload-popup.scss'
 
-const ACCEPT_FILES = ['.jpg', '.jpeg']
+const ACCEPT_FILES = ['.jpg', '.jpeg', '.png', '.heic', '.heif', '.webp']
 const UPLOAD_STATUS = { SUCCESS: 'success', FAILED: 'failed', PENDING: 'pending' }
 
 const UploadPopup = () => {
@@ -24,61 +27,45 @@ const UploadPopup = () => {
             if (loaded.length) {
                 // loaded.forEach(({ file }) => URL.revokeObjectURL(file.preview))
                 loaded.forEach(({ thumbnail }) => URL.revokeObjectURL(thumbnail.preview))
-
             }
         }
     }, [])
 
     const onFileLoad = ({ target }) => {
-        
         loadFiles(target)
         setLoading(true)
     }
 
     const loadFiles = async (target) => {
 
-        
-        let loadedArray = []
         let dataArray = []
-
         let files = Array.from(target.files)
 
-        console.log('files', files);
-        
-
         for (const [idx, file] of files.entries()) {
-            
 
             let thumbnail
             if (isValid(file)) {
                 file.isValid = true
                 file.tempId = idx
-                
-
                 let [name_user, ext] = file.name.split('.')
-                
-
-                
                 thumbnail = await resizeImage(file)
-                // let preview =
-                dataArray.push({ name_user, ext, tempId: idx })
-                    
-                
+                let meta = await extractMeta(file)
+                dataArray.push({ name_user, ext, tempId: idx, meta })
+
             } else {
-                // ???????
-                console.log('not valid');
                 file.isValid = false
             }
 
-            // file.preview = URL.createObjectURL(file)
-            // loadedArray.push({ file, thumbnail })
+            try {
+                thumbnail.preview = URL.createObjectURL(thumbnail)
+            } catch (error) {
+                console.log(error);
+            }
 
-            thumbnail.preview = URL.createObjectURL(thumbnail)
             setLoaded((state) => ([...state, { file, thumbnail }]))
         }
 
         setLoading(false)
-        // setLoaded(loadedArray)
         setFileData(dataArray)
 
     }
@@ -87,10 +74,9 @@ const UploadPopup = () => {
 
         let ext = file.name.slice(file.name.lastIndexOf('.'))
 
-        if (!ACCEPT_FILES.includes(ext.toLowerCase())) { 
+        if (!ACCEPT_FILES.includes(ext.toLowerCase())) {
             return false
         } else if ('') { // validate for size / quality
-            
             return false
         }
 
@@ -99,6 +85,7 @@ const UploadPopup = () => {
 
     const getUrlsAndUpload = async () => {
         const { album_id, startAtOrder } = payload
+
         setUploading(true)
         let res = await photoService.uploadPhotos({ user_id: userInfo.id, files: fileData, album_id, startAtOrder })
         const promiseArray = []
@@ -109,10 +96,17 @@ const UploadPopup = () => {
             promiseArray.push(pending)
         }
         Promise.allSettled(promiseArray)
-        .then((res) => {
-            console.log('res at allSettled', res);
-            toggle({ popupType: 'UploadDone', payload })
-        })
+            .then((res) => {
+
+                for (const obj of res) {
+                    if (obj.status === 'fulfilled') {
+                        confirmUpload({ name: obj.value })
+                    }
+                }
+
+                payload.onUploadDone?.()
+                toggle({ popupType: 'UploadDone', payload })
+            })
     }
 
     const uploadWithSignedUrl = async ({ url, file, thumbnailUrl, thumbnail, name }) => {
@@ -124,50 +118,64 @@ const UploadPopup = () => {
                 'Content-Type': thumbnail.type,
             }
         })
-        .then((res) => {
-            if (res.ok) {
-                console.log('thumbnail uploaded', res);
-            } else {
-                console.log('thumbnail upload FAILED', res);
-            }
-        })
+            .then((res) => {
+                if (res.ok) {
+                    console.log('thumbnail uploaded', res);
+                } else {
+                    console.log('thumbnail upload FAILED', res);
+                }
+            })
+            .catch((err) => console.log('thumbnail upload error', err))
 
+        try {
+            const res = await fetch(url, {
+                method: 'PUT',
+                body: file,
+                headers: {
+                    'Content-Type': file.type,
+                }
+            })
 
-        return fetch(url, {
-            method: 'PUT',
-            body: file,
-            headers: {
-                'Content-Type': file.type,
-            }
-        })
-        .then((res) => {
             if (res.ok) {
-                console.log('success', res);
-                // handle
                 setUploadStatus(file.tempId, UPLOAD_STATUS.SUCCESS)
+                return name
             } else {
-                console.log('error!', res);
+                console.log('error', res);
                 setUploadStatus(file.tempId, UPLOAD_STATUS.FAILED)
                 deleteWhenFailed(name)
             }
-        })
+        } catch (err) {
+            console.log('upload fetch error', err);
+            setUploadStatus(file.tempId, UPLOAD_STATUS.FAILED)
+            deleteWhenFailed(name)
+        }
     }
 
     const setUploadStatus = (id, status) => {
         setLoaded((state) => {
+
             let newState = state.map(({ file, thumbnail }) => {
                 if (file.tempId == id) return { file: { ...file, uploaded: status }, thumbnail }
                 else return { file, thumbnail }
             })
+
             return newState
         })
     }
 
+    const confirmUpload = async ({ name }) => {
+        try {
+            photoService.confirmUpload({ name })
+        } catch (error) {
+            console.log('confirmUpload', error);
+        }
+    }
+
     const deleteWhenFailed = (name) => {
         photoService.deleteFailedUpload({ name })
-        .catch((error) => {
-            console.log('deleteFailedUpload', error);
-        })
+            .catch((error) => {
+                console.log('deleteFailedUpload', error);
+            })
     }
 
     const tempContent = {
@@ -175,6 +183,7 @@ const UploadPopup = () => {
         upload_uploadButton: 'upload $n file(s)',
         upload_selectPhotos: 'browse'
     }
+
     return (
         <div className='upload-wrapper'>
             <div className='upload-top-row'>
@@ -183,8 +192,6 @@ const UploadPopup = () => {
             <span className='upload-title'>
                 {tempContent.upload_title}
             </span>
-
-
 
             <div className='upload-input-container'>
                 <label className='upload-input-label' htmlFor='upload-input' >
@@ -199,27 +206,23 @@ const UploadPopup = () => {
                     />
                 </label>
 
-                
                 <div className='upload-spinner-container'>
-                    {loading ?<img src={spinner} className='upload-spinner' /> : ''}
+                    {loading ? <Spinner className='upload-spinner' /> : ''}
                 </div>
             </div>
-
-           
-            
 
             <div className='upload-list-container'>
                 {loaded.map(({ file, thumbnail }, idx) => (
                     <div key={idx.toString()} className='upload-list-item'>
-                        <img className='upload-list-item-img' src={thumbnail.preview} />
-                        <span className='upload-list-item-name'>{file.name}</span>
+                        <img className='upload-list-item-img' src={thumbnail?.preview} />
+                        <span className='upload-list-item-name'>{thumbnail.name?.split?.('.')?.[0]}</span>
                         {/* <span>{`valid: ${file.isValid}`}</span> */}
                         {file.uploaded === UPLOAD_STATUS.SUCCESS ?
-                            <span className='upload-list-item-success'>{`Success!`}</span> :
-                         file.uploaded === UPLOAD_STATUS.FAILED ?
-                            <span className='upload-list-item-failed'>{`Failed`}</span> :
-                         file.uploaded === UPLOAD_STATUS.PENDING ?
-                            <span className='upload-list-item-pending'>{`pending`}</span> : ''}
+                            <img src={checkmark} className='upload-list-item-success' /> :
+                            file.uploaded === UPLOAD_STATUS.FAILED ?
+                                <img src={failed} className='upload-list-item-failed' /> :
+                                file.uploaded === UPLOAD_STATUS.PENDING ?
+                                    <Spinner className='upload-list-item-pending' /> : ''}
                     </div>
                 ))}
             </div>
@@ -229,7 +232,7 @@ const UploadPopup = () => {
                     {tempContent.upload_uploadButton.replace('$n', loaded.length)}
                 </button>
                 <div className='upload-submit-spinner-container'>
-                    {uploading ? <img src={spinner} /> : ''}
+                    {uploading ? <Spinner className='upload-submit-spinner' /> : ''}
                 </div>
             </div>
         </div>

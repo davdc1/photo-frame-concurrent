@@ -1,17 +1,27 @@
 import { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { PopupContext } from '../../../Contexts/PopupContext'
 import './add-photos.scss'
 
 const AddPhotosPopup = () => {
 
     const { toggle, payload } = useContext(PopupContext)
+    const navigate = useNavigate()
 
     const toggleUploadPopup = () => {
+        console.log('PAYLOADDDD', payload);
+        
         toggle({ popupType: 'Upload', payload })
     }
 
-    const goTo = () => {
-        console.log('going');
+    // const toggleAddFromLibrary = () => {
+    //     toggle({ popupType: 'AddFromLibrary', payload })
+    // }
+
+    const goToLibrary = () => {
+        const { album } = payload
+        toggle()
+        navigate('/auth/photos', { state: { fromAlbum: true, album_id: album.id, albumName: album.name } })
     }
 
     const tempContent = {
@@ -27,7 +37,8 @@ const AddPhotosPopup = () => {
 
             <div className='add-photos-buttons'>
                 <button
-                    onClick={goTo}
+                    // onClick={toggleAddFromLibrary}
+                    onClick={goToLibrary}
                     className='add-photos-button'
                 >
                     {tempContent.addPhotos_add}

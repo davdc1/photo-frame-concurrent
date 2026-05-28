@@ -1,22 +1,24 @@
 import { useContext, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { AuthContext } from '../../Contexts/AuthContext'
-import AlbumList from './AlbumList'
-import Album from './Album'
 import { photoService } from '../../services/photoService'
+import { PopupContext } from '../../Contexts/PopupContext'
+import Album from './Album'
+import AlbumList from './AlbumList'
 import './albums.scss'
 
 const Albums = () => {
 
     const { userInfo } = useContext(AuthContext)
+    const { toggle } = useContext(PopupContext)
 
     const [loadingAlbums, setLoadingAlbums] = useState(false)
     const [loadingAlbumPhotos, setLoadingAlbumPhotos] = useState(false)
 
     const [albums, setAlbums] = useState(null)
-
     const [selectedAlbum, setSelectedAlbum] = useState(null)
 
-
+    const location = useLocation()
 
 
     /*
@@ -31,24 +33,39 @@ const Albums = () => {
     add photos to album
     create new album
     edit album
+    delete album
 
     edit album:
     change photo-order
     remove photos
     change name and description
     */
+
     useEffect(() => {
         getAlbums()
     }, [])
 
+    useEffect(() => {
+        if (albums?.length && location.state?.album_id) {
+            if (albums.find(({ id }) => id == location.state.album_id)) {
+                setSelectedAlbum(location.state.album_id)
+            }
+        }
+    }, [albums])
+
     const getAlbums = () => {
 
-        console.log('userInfo.id', userInfo.id);
         setLoadingAlbums(true)
 
+
+        
+        
         photoService.getUserAlbums({ userId: userInfo.id })
+        
+        // !!!!!    REMOVE    !!!!!
+        // photoService.getUserAlbums({ userId: 3 })
+
             .then((res) => {
-                console.log('res getUserAlbums', res. data);
                 setAlbums(res.data)
             })
             .catch((error) => {
@@ -65,16 +82,41 @@ const Albums = () => {
         }
     }
 
-    console.log('albumssss');
+    const toggleNewAlbum = () => {
+        toggle({ popupType: 'NewAlbum', payload: { addNewlyCreatedAlbum } })
+    }
+
+    const addNewlyCreatedAlbum = (album) => {
+        setAlbums((prev) => [...prev, album])
+        setSelectedAlbum(album.id)
+    }
+
+    const removeDeletedAlbum = (album_id) => {
+        setAlbums((prev) => {
+            return prev.filter(({ id }) => id != album_id)
+        })
+        setSelectedAlbum(null)
+    }
+
+    const tempTexts = {
+        Albums_newAlbum: 'new album'
+    }
+
 
     return(
         <div className='albums-wrapper'>
 
+            <div className='albums-controls'>
+                <button className='album-con-btn' onClick={toggleNewAlbum}>
+                    {tempTexts.Albums_newAlbum}
+                </button>
+            </div>
+
             {albums ?
-                <AlbumList clickHandler={onAlbumClick} albums={albums} /> : ''}
+                <AlbumList clickHandler={onAlbumClick} albums={albums} selectedAlbum={selectedAlbum} /> : ''}
 
             {selectedAlbum ? 
-                <Album album_id={selectedAlbum}/> : ''}
+                <Album key={selectedAlbum} album_id={selectedAlbum} album={albums.find(({ id }) => id == selectedAlbum)} removeDeletedAlbum={removeDeletedAlbum} /> : ''}
 
         </div>
     )
