@@ -1,5 +1,6 @@
 
 import { useContext, useState } from 'react'
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { PopupContext } from '../../Contexts/PopupContext'
 import Icon from '../Icon'
 import expandIcon from '../../images/svgs/expand.svg'
@@ -10,6 +11,9 @@ const ThumbnailSelect = ({ params: { item, onSelectItem, selected, disable, inAl
 
     const [loaded, setLoaded] = useState(false)
     const { toggle } = useContext(PopupContext)
+
+    const thumbnailFocus = useFocusable()
+    const checkFocus = useFocusable()
 
     const prevPopup = () => {
         toggle({ popupType: 'PhotoPrev', payload: { id: item.id } })
@@ -35,6 +39,7 @@ const ThumbnailSelect = ({ params: { item, onSelectItem, selected, disable, inAl
             onClick={disable || !select ? undefined : handleSelect}
             onMouseDown={!select ? undefined : startDrag}
             onTouchStart={!select ? undefined : startDrag}
+            ref={thumbnailFocus.ref}
         >
             {select ?
                 <>
@@ -42,7 +47,7 @@ const ThumbnailSelect = ({ params: { item, onSelectItem, selected, disable, inAl
                     <button className='thumbnail-open' onClick={prevPopup}>
                         <img src={expandIcon} />
                     </button>
-                    <div className={`thumbnail-select-check ${selected[item.id] || (inAlbum && selected[item.album_photo_id]) ? 'selected' : ''}`}>
+                    <div ref={checkFocus.ref} className={`thumbnail-select-check ${selected[item.id] || (inAlbum && selected[item.album_photo_id]) ? 'selected' : ''}`}>
                         <Icon type='check' className='check-icon' />
                     </div>
                 </> : ''}

@@ -1,0 +1,78 @@
+<svg width="400" height="800" viewBox="0 0 400 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Wave 1 Gradient - Lightest gray contour -->
+    <linearGradient id="wave1Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#B0B8D0" stop-opacity="0.75"/>
+      <stop offset="9%" stop-color="#8A92B5" stop-opacity="0.35"/>
+      <stop offset="24%" stop-color="#4A536F" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#05080F" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Wave 2 Gradient -->
+    <linearGradient id="wave2Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#9CA4C2" stop-opacity="0.65"/>
+      <stop offset="10%" stop-color="#7A83A8" stop-opacity="0.32"/>
+      <stop offset="27%" stop-color="#3F475F" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#05080F" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Wave 3 Gradient -->
+    <linearGradient id="wave3Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8A92B5" stop-opacity="0.55"/>
+      <stop offset="11%" stop-color="#6A7399" stop-opacity="0.28"/>
+      <stop offset="29%" stop-color="#353D5A" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#05080F" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Wave 4 Gradient - Darkest gray -->
+    <linearGradient id="wave4Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7A83A8" stop-opacity="0.48"/>
+      <stop offset="12%" stop-color="#5C6488" stop-opacity="0.22"/>
+      <stop offset="32%" stop-color="#2C334F" stop-opacity="0.03"/>
+      <stop offset="100%" stop-color="#05080F" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    .wave {
+      animation: waveMove 28s linear infinite;
+    }
+    
+    .wave1 { animation-duration: 32s; }
+    .wave2 { animation-duration: 41s; }
+    .wave3 { animation-duration: 26s; }
+    .wave4 { animation-duration: 35s; }
+    
+    @keyframes waveMove {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-300px); }
+    }
+  </style>
+
+  <!-- Dark Background -->
+  <rect width="400" height="800" fill="#05080F"/>
+
+  <!-- Wave 1 -->
+  <g class="wave wave1">
+    <path d="M0 200 C100 150 200 250 300 200 C400 150 500 250 600 200 C700 150 800 250 900 200 C1000 150 1100 250 1200 200 V800 H0 Z" 
+          fill="url(#wave1Grad)"/>
+  </g>
+
+  <!-- Wave 2 -->
+  <g class="wave wave2">
+    <path d="M-100 300 C50 250 150 350 300 300 C450 250 550 350 700 300 C850 250 950 350 1100 300 C1250 250 1350 350 1500 300 V800 H-100 Z" 
+          fill="url(#wave2Grad)"/>
+  </g>
+
+  <!-- Wave 3 -->
+  <g class="wave wave3">
+    <path d="M0 450 C120 400 250 500 350 450 C480 400 580 500 700 450 C820 400 950 500 1050 450 C1180 400 1280 500 1400 450 V800 H0 Z" 
+          fill="url(#wave3Grad)"/>
+  </g>
+
+  <!-- Wave 4 -->
+  <g class="wave wave4">
+    <path d="M-50 600 C80 550 220 650 350 600 C480 550 620 650 750 600 C880 550 1020 650 1150 600 C1280 550 1420 650 1550 600 V800 H-50 Z" 
+          fill="url(#wave4Grad)"/>
+  </g>
+</svg>

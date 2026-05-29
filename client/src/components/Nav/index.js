@@ -3,8 +3,10 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { AuthContext } from '../../Contexts/AuthContext'
 import { PopupContext } from '../../Contexts/PopupContext'
 import Icon from '../Icon'
+import SideNavLink from './SideNavLink'
 // import { TextContext } from '../../Contexts/TextContext'
 import './nav2.scss'
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 
 const NAV_OVERLAY_ID = 'navOverlayId'
 
@@ -18,6 +20,8 @@ const SideNav = ({ links, componentClass }) => {
     const [visible, setVisible] = useState(true)
     const visibleTimer = useRef(null)
     const location = useLocation()
+
+    const { ref } = useFocusable()
 
     useEffect(() => {
 
@@ -128,18 +132,20 @@ const SideNav = ({ links, componentClass }) => {
                         if (admin && userInfo.role !== 'ADMIN') return ''
 
                         return (
-                            <div onClick={toggleNav} className='side-nav-link' key={text + idx}>
-                                <NavLink className='nav-link' to={path}>
-                                    <Icon type={iconType} className='side-nav-icon' />
-                                    <span>{heb_text || text}</span>
-                                </NavLink>
-                            </div>
+                            // <div onClick={toggleNav} className='side-nav-link' key={text + idx}>
+                            //     <NavLink className='nav-link' to={path}>
+                            //         <Icon type={iconType} className='side-nav-icon' />
+                            //         <span>{heb_text || text}</span>
+                            //     </NavLink>
+                            // </div>
+
+                            <SideNavLink text={text} heb_text={heb_text} path={path} toggleNav={toggleNav} iconType={iconType} key={text + idx} />
                         )
                     }
                     )}
 
                     {userInfo.id ?
-                        <div onClick={confirmLogout} className='side-nav-link logout'>
+                        <div onClick={confirmLogout} className='side-nav-link logout' ref={ref}>
                             <Icon type={'logout'} className='side-nav-icon' />
                             <span>{tempTexts.Nav_logout}</span>
                         </div> : ''}

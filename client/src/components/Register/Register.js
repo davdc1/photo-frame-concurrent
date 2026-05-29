@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { AuthContext } from '../../Contexts/AuthContext'
 import useTogglePassword from '../../Hooks/toggleShowPassword'
 import { authService } from '../../services/authService'
@@ -16,6 +17,12 @@ const Register = () => {
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
     const [passwordMode, togglePasswordMode] = useTogglePassword()
+
+    const firstNameFocus = useFocusable()
+    const lastNameFocus = useFocusable()
+    const emailFocus = useFocusable()
+    const passwordFocus = useFocusable()
+    const submitFocus = useFocusable()
 
     const handleInputs = ({ target }) => {
         const field = target.id.split?.('-')?.[1]
@@ -92,16 +99,16 @@ const Register = () => {
             <span className='register-title'>{content.Register_title}</span>
             <div className='register-fields'>
                 <InputField label={content.Register_firstName}>
-                    <input id={'register-first_name'} value={inputs.first_name} onChange={handleInputs} />
+                    <input id={'register-first_name'} value={inputs.first_name} onChange={handleInputs} ref={firstNameFocus.ref} />
                 </InputField>
                 <InputField label={content.Register_lastName}>
-                    <input id={'register-last_name'} value={inputs.last_name} onChange={handleInputs} />
+                    <input id={'register-last_name'} value={inputs.last_name} onChange={handleInputs} ref={lastNameFocus.ref} />
                 </InputField>
                 <InputField label={content.Register_email}>
-                    <input id='register-email' type='email' value={inputs.email} onChange={handleInputs} />
+                    <input id='register-email' type='email' value={inputs.email} onChange={handleInputs} ref={emailFocus.ref} />
                 </InputField>
                 <InputField label={content.Register_password} type={passwordMode} togglePassword={togglePasswordMode}>
-                    <input id={'register-password'} type={passwordMode} value={inputs.password} onChange={handleInputs} />
+                    <input id={'register-password'} type={passwordMode} value={inputs.password} onChange={handleInputs} ref={passwordFocus.ref} />
                 </InputField>
             </div>
 
@@ -117,6 +124,7 @@ const Register = () => {
                         onClick={onRegister}
                         disabled={!allValid}
                         className='register-send'
+                        ref={submitFocus.ref}
                     >
                         {content.Register_submit}
                     </button>

@@ -1,11 +1,17 @@
 import { useContext, useEffect } from 'react';
 import { AuthContext } from './Contexts/AuthContext';
+import { init } from "@noriginmedia/norigin-spatial-navigation";
 import BottomNav from './components/BottomNav';
 import GeneralLoader from './components/GeneralLoader';
 import Header from './components/Header';
 import MainRouter from './Routers/MainRouter';
 import { navLinks } from './utils/navLinks';
 import './App.scss';
+
+init({
+  debug: false,
+  visualDebug: false,
+});
 
 function App() {
 
@@ -40,7 +46,7 @@ function App() {
 
   return (
     <div className="App" style={{ paddingTop: '50px' }}>
-      <Header title="The App" />
+      <Header title="" />
       <MainRouter />
       <GeneralLoader />
       {window.innerWidth < 768 ?

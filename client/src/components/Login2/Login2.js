@@ -1,5 +1,6 @@
 import { useContext, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
+import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { AuthContext } from "../../Contexts/AuthContext"
 import useTogglePassword from "../../Hooks/toggleShowPassword"
 import InputField from "../InputField"
@@ -14,6 +15,10 @@ const Login2 = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const [passwordMode, togglePasswordMode] = useTogglePassword()
+
+    const emailFocus = useFocusable()
+    const passwordFocus = useFocusable()
+    const submitFocus = useFocusable()
 
     const handleInputs = (e) => {
         let { id, value } = e.target
@@ -57,10 +62,10 @@ const Login2 = () => {
             <span className='login-title'>{content.Login_title}</span>
             <div className='login-fields'>
                 <InputField label={content.Login_email}>
-                    <input id='login-email' type='email' value={inputs.email} onChange={handleInputs} />
+                    <input id='login-email' type='email' value={inputs.email} onChange={handleInputs} ref={emailFocus.ref} />
                 </InputField>
                 <InputField label={content.Login_password} type={passwordMode} togglePassword={togglePasswordMode}>
-                    <input id='login-password' type={passwordMode} value={inputs.password} onChange={handleInputs} />
+                    <input id='login-password' type={passwordMode} value={inputs.password} onChange={handleInputs} ref={passwordFocus.ref} />
                 </InputField>
             </div>
             <div className='login-bottom'>
@@ -68,6 +73,7 @@ const Login2 = () => {
                     onClick={onLogin}
                     disabled={!valid}
                     className='login-send'
+                    ref={submitFocus.ref}
                 >
                     {content.Login_submit}
                 </button>

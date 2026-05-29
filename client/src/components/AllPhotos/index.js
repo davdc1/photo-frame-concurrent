@@ -8,6 +8,7 @@ import { photoService } from '../../services/photoService'
 import Icon from '../Icon'
 import Spinner from '../Spinner'
 import './all-photos.scss'
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 
 const FETCH_MODES = { SCROLL: 'SCROLL', PAGINATION: 'PAGINATION' }
 const FETCH_MODE = FETCH_MODES.SCROLL
@@ -37,6 +38,11 @@ const AllPhotos = () => {
     const loadMoreDebounceRef = useRef()
     const paginateRef = useRef()
 
+    const addButtonFocus = useFocusable()
+    const selectButtonFocus = useFocusable()
+    const deleteButtonFocus = useFocusable()
+    const addToAlbumButtonFocus = useFocusable()
+    const backButtonFocus = useFocusable()
 
     // load more on scroll
     useEffect(() => {
@@ -288,12 +294,12 @@ const AllPhotos = () => {
                 <div className='all-photos-btn-row'>
                     {location.state?.fromAlbum ? (
                         <>
-                            <button className='back-btn' onClick={backToAlbum}>{tempContent.AllPhotos_back}</button>
-                            <button className='add-btn' onClick={addToAlbum} disabled={!Object.values(selected).find((v) => v === true)}>{tempContent.AllPhotos_add}</button>
+                            <button className='back-btn' onClick={backToAlbum} ref={backButtonFocus.ref}>{tempContent.AllPhotos_back}</button>
+                            <button className='add-btn' onClick={addToAlbum} ref={addButtonFocus.ref} disabled={!Object.values(selected).find((v) => v === true)}>{tempContent.AllPhotos_add}</button>
                         </>
                     ) : (
                         <>
-                            <button className='upload-btn' onClick={uploadPopup}>
+                            <button className='upload-btn' onClick={uploadPopup} ref={addButtonFocus.ref}>
                                 <Icon type='plus' className='btn-icon' />
                                 <span>{tempContent.AllPhotos_add}</span>
                             </button>
@@ -302,6 +308,7 @@ const AllPhotos = () => {
                                 className={`select-btn${select ? ' active' : ''}`}
                                 onClick={hitSelect}
                                 disabled={list.length === 0}
+                                ref={selectButtonFocus.ref}
                             >
                                 {!select ? <Icon type='select' className='btn-icon' /> : ''}
 
@@ -311,10 +318,10 @@ const AllPhotos = () => {
                             {Object.values(selected).find((v) => v === true) && (
                                 <>
 
-                                    <button className='delete-btn' onClick={confirmDeletePhotos}>{tempContent.AllPhotos_delete}</button>
+                                    <button className='delete-btn' onClick={confirmDeletePhotos} ref={deleteButtonFocus.ref}>{tempContent.AllPhotos_delete}</button>
 
                                     {userAlbums.albums.length > 1 && (
-                                        <button className='add-to-album-btn' onClick={toggleAddToAlbum}>{'add to album'}</button>
+                                        <button className='add-to-album-btn' onClick={toggleAddToAlbum} ref={addToAlbumButtonFocus.ref}>{'add to album'}</button>
                                     )}
                                 </>
                             )}

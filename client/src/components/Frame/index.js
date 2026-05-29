@@ -1,6 +1,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { photoService } from '../../services/photoService'
 import { intervalUnits, localStorageKeys, playListDataKeys, sessionOrderTypes, transitionClasses, transitionTypes, unitToSeconds } from '../../utils/consts'
 import exitFullScreen from '../../images/svgs/exit-full-screen.svg'
@@ -32,6 +33,10 @@ const Frame = () => {
 
     const location = useLocation()
     const navigate = useNavigate()
+
+    const noPhotosFocus = useFocusable()
+    const goStopFocus = useFocusable()
+    const fullscreenFocus = useFocusable()
 
     useEffect(() => {
         init()
@@ -382,7 +387,7 @@ const Frame = () => {
 
                 {noPhotos ? <div className='no-photos-box'>
                     <h3>{tempTexts.Frame_noPhotosLine1}</h3>
-                    <NavLink to='/auth/photos' state={{ openUploadModal: true }}>{tempTexts.Frame_noPhotosLine2}</NavLink>
+                    <NavLink to='/auth/photos' state={{ openUploadModal: true }} ref={noPhotosFocus.ref}>{tempTexts.Frame_noPhotosLine2}</NavLink>
                 </div> : ''}
 
                 {/* as file: */}
@@ -405,10 +410,10 @@ const Frame = () => {
 
             {showKeys && !noPhotos ?
                 <div className='frame-key-container'>
-                    <button className='go-button' onClick={toggleGo}>{go ? 'stop' : 'go'}</button>
+                    <button className='go-button' onClick={toggleGo} ref={goStopFocus.ref}>{go ? 'stop' : 'go'}</button>
                     {/* <button onClick={() => makeTheShift(true)}>shift</button> */}
                     {canFullscreen ?
-                        <button className='frame-full-screen-btn' onClick={toggleFullscreen}>
+                        <button className='frame-full-screen-btn' onClick={toggleFullscreen} ref={fullscreenFocus.ref}>
                             <img src={fullScreen ? exitFullScreen : enterFullScreen} alt='' />
                         </button> : ''}
                 </div> : ''}

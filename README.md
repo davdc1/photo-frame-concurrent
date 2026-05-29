@@ -2,6 +2,8 @@
 
 A full-stack photo management and digital photo frame application. Upload, organize, and display your photos in a continuous slideshow — with AI-powered album creation using natural language search.
 
+Live app at: https://photo-frame-app.fly.dev
+
 ## Main Features
 
 - **Digital Photo Frame** — Full-screen slideshow with configurable intervals, transition effects, and session persistence. Supports playing all photos or curated playlists from specific albums.
@@ -42,6 +44,7 @@ A natural language query is processed through a pipeline:
 ### Settings
 - Slideshow interval (value + unit)
 - Transition type
+- Random / Sequential slideshow
 - Theme toggle (light / dark)
 
 ---
@@ -52,11 +55,11 @@ A natural language query is processed through a pipeline:
 
 The application is composed of three services:
 
-| Service | Stack | Port |
-|---------|-------|------|
-| **Client** | React, SCSS, React Router | 3000 |
-| **Server** | Express, Knex, Objection.js | 3001 |
-| **Embedding Worker** | Python, FastAPI, PyTorch, CLIP | 8000 |
+| Service | Stack |
+|---------|-------|
+| **Client** | React, SCSS, React Router |
+| **Server** | Express, Knex, Objection.js |
+| **Embedding Worker** | Python, FastAPI, PyTorch, CLIP |
 
 ### Infrastructure
 
@@ -160,9 +163,7 @@ These two modes should eventually be split into distinct interfaces, possibly wi
 - No user self-service (password reset, account deletion).
 
 ### Other Planned Features
-- Internationalization (i18n) — text is currently hardcoded in English via `tempContent` objects, prepared for future extraction.
-- Infinite scroll — photo library currently uses pagination; should transition to load-on-scroll.
-- Photo metadata editor — view and edit EXIF data, add tags.
+- Internationalization (i18n) — text is currently hardcoded in English, prepared for future extraction.
+- Photo metadata editor — add tags.
 - Album sharing — public/private album links.
-- Deployment tooling — Docker Compose for the full stack (client, server, worker, MySQL).
 
