@@ -1,169 +1,179 @@
 # Photo Frame
 
-A full-stack photo management and digital photo frame application. Upload, organize, and display your photos in a continuous slideshow — with AI-powered album creation using natural language search.
+A full-stack photo management and digital photo frame application that combines traditional photo organization with AI-powered natural language search and semantic image retrieval.
 
 Live app at: https://photo-frame-app.fly.dev
 
-## Main Features
+## Highlights
 
-- **Digital Photo Frame** — Full-screen slideshow with configurable intervals, transition effects, and session persistence. Supports playing all photos or curated playlists from specific albums.
-- **Photo Library** — Browse, select, upload, and delete photos with paginated grid views and responsive thumbnails.
-- **Album Management** — Create, rename, reorder, and delete albums. Drag-and-drop photo ordering within albums.
-- **AI-Powered Album Creation** — Describe what you want in natural language (e.g. *"sunset photos from last summer"*) and the app creates an album using a combination of metadata filters and semantic image search.
-- **Semantic Search** — Photos are automatically embedded into a vector database on upload, enabling visual similarity search (e.g. *"dogs"*, *"people at a party"*).
-- **Dark / Light Theme** — System-wide theme toggle with CSS variables.
-- **Responsive Design** — Mobile-first layouts using CSS Grid with responsive breakpoints.
+- Built a distributed architecture with separate **React**, **Node.js**, and Python services.
+- Implemented semantic image search using **CLIP embeddings** and **Pinecone** vector search.
+- Designed an AI-powered album creation pipeline that converts natural language queries into structured metadata filters and vector searches.
+- Implemented direct-to-S3 uploads using presigned URLs to avoid routing large files through the application server.
+- Built asynchronous image processing using **SQS** and a dedicated embedding worker.
+- Created a slideshow engine with session persistence, playlist support, and configurable transitions.
 
----
+## Key Features
 
-## Feature Details
+### AI-Powered Album Creation
 
-### Photo Upload
-Photos are uploaded via presigned S3 URLs. The client extracts EXIF metadata (date, GPS coordinates, orientation) before upload. After a successful upload, an SQS message triggers the embedding worker to generate a vector embedding of the image for semantic search.
+Users can create albums using natural language:
 
-### Slideshow (Frame)
-The slideshow engine pre-fetches a queue of 5 photos and cycles through them at a configurable interval (seconds, minutes, or hours). It supports:
-- **All Photos** — Shuffles through the entire library.
-- **Album Playlist** — Plays through selected albums in order, automatically advancing to the next album.
-- **Session Persistence** — Slideshow sessions are stored in the database and persist across page reloads or interruptions. When resumed, the slideshow picks up from the same photo where it left off.
+> *"sunset photos from last summer"*
 
-### Albums
-- Photos can be added to albums from the library or uploaded directly into an album.
-- Drag-and-drop reordering within albums.
-- Each album displays a cover photo (first photo in the album).
-- Albums support renaming and deletion.
+The query is processed through a multi-stage pipeline:
 
-### AI / LLM Search
-A natural language query is processed through a pipeline:
-1. **OpenAI (gpt-4o-mini)** parses the query into structured filters: date ranges, year, month, day of week, orientation, location, and a semantic search flag.
-2. **Geocoding (Nominatim)** converts location names into bounding boxes for spatial SQL queries.
-3. **MySQL** filters photos by metadata (dates, GPS coordinates, orientation).
-4. **Pinecone** performs vector similarity search using an LLM-extracted semantic query, intersected with the SQL results.
-5. The matched photos are assembled into a new album with a generated name and description.
+1. **OpenAI** extracts structured filters (date ranges, locations, orientation, etc.).
+2. Location names are geocoded into geographic boundaries.
+3. **MySQL** applies metadata filtering.
+4. **Pinecone** performs semantic similarity search using CLIP embeddings.
+5. Results are combined into a generated album with an AI-generated title and description.
 
-### Settings
-- Slideshow interval (value + unit)
-- Transition type
-- Random / Sequential slideshow
-- Theme toggle (light / dark)
+### Semantic Image Search
+
+Every uploaded photo is embedded using OpenAI's CLIP model and stored in Pinecone.
+
+This enables searches based on image content rather than manually assigned tags:
+
+- *"dogs"*
+- *"people at a party"*
+- *"mountain landscapes"*
+
+### Digital Photo Frame
+
+A full-screen slideshow system supporting:
+
+- Entire photo library playback
+- Album-based playlists
+- Random or sequential ordering
+- Configurable intervals and transitions
+- Persistent sessions that resume from the previously displayed photo
+
+### Photo & Album Management
+
+- Photo uploads and deletion
+- Album creation and organization
+- Drag-and-drop photo reordering
+- Album cover management
+- Responsive photo library browsing
 
 ---
 
 ## Architecture
 
-### System Overview
+The application consists of three independently deployable services:
 
-The application is composed of three services:
-
-| Service | Stack |
-|---------|-------|
-| **Client** | React, SCSS, React Router |
-| **Server** | Express, Knex, Objection.js |
+| Service | Technology |
+|---------|------------|
+| **Frontend** | React, React Router, SCSS |
+| **Backend API** | Node.js, Express, Knex, Objection.js |
 | **Embedding Worker** | Python, FastAPI, PyTorch, CLIP |
 
 ### Infrastructure
 
 | Component | Purpose |
 |-----------|---------|
-| **MySQL** | Relational data: users, photos, albums, sessions |
-| **AWS S3** | Photo storage (originals + thumbnails) via presigned URLs |
-| **AWS SQS** | Message queue for async embedding jobs |
-| **Pinecone** | Vector database for image embeddings (512-dim CLIP vectors) |
-| **OpenAI API** | Natural language → structured filter parsing |
-| **Nominatim** | Geocoding (location name → bounding box) |
+| **MySQL** | Application data and metadata |
+| **AWS S3** | Image storage |
+| **AWS SQS** | Asynchronous processing queue |
+| **Pinecone** | Vector database |
+| **OpenAI API** | Query understanding |
+| **Nominatim** | Geocoding |
 
-### Data Flow
-
-```
-Client ←→ Express API ←→ MySQL
-                ↕              
-           S3 (presigned URLs)  
-                ↕
-Client → S3 (direct upload)
-                ↕
-         API → SQS → Embedding Worker → S3 (download)
-                                       → CLIP (embed)
-                                       → Pinecone (store)
-```
-
-### Project Structure
+### Upload & Embedding Pipeline
 
 ```
-├── client/                     # React frontend
-│   └── src/
-│       ├── components/
-│       │   ├── AllPhotos/       # Photo library grid
-│       │   ├── Albums2/         # Album list, album detail, album items
-│       │   ├── Frame/           # Slideshow engine
-│       │   ├── StartSlideShow/  # Session setup
-│       │   ├── Settings/        # App configuration
-│       │   ├── Popups/          # Modal system (upload, confirm, add-to-album, etc.)
-│       │   ├── Nav/             # Top navigation
-│       │   ├── BottomNav/       # Mobile bottom navigation
-│       │   ├── Header/          # App header
-│       │   ├── Login/           # Authentication
-│       │   └── ThumbnailSelect/ # Reusable selectable thumbnail
-│       ├── Contexts/            # React contexts (Auth, Popup, Theme)
-│       ├── services/            # API client (photoService)
-│       └── utils/               # Constants, helpers
-│
-├── server/                      # Express backend
-│   ├── controllers/
-│   │   ├── photoController.js   # Upload, delete, sessions, thumbnails
-│   │   ├── albumController.js   # CRUD albums, reorder, add/remove photos
-│   │   ├── llmController.js     # AI search + album creation
-│   │   └── userController.js    # Auth (register, login, logout)
-│   ├── models/                  # Objection.js models (User, Photo, Album, Session)
-│   ├── services/
-│   │   ├── llmService.js        # OpenAI Responses API wrapper
-│   │   ├── embeddingService.js  # Text embedding via worker API
-│   │   ├── pineconeService.js   # Pinecone client
-│   │   ├── geoService.js        # Nominatim geocoding
-│   │   └── sqsService.js        # SQS message handling
-│   ├── prompts/                 # LLM system prompts + JSON schema
-│   ├── routes/                  # Express route definitions
-│   └── utils/                   # Middleware (auth, rate limiting), validation
-│
-├── embedding-worker/            # Python microservice
-│   ├── worker.py                # SQS consumer (image → embedding → Pinecone)
-│   ├── api.py                   # FastAPI text embedding endpoint
-│   └── services/
-│       ├── embedding_service.py # CLIP model (image + text embeddings)
-│       ├── s3_service.py        # S3 image download
-│       ├── sqs_service.py       # SQS message polling
-│       └── pinecone_service.py  # Vector upsert
-│
-└── package.json                 # Root: concurrently runs client + server
+Client
+  │
+  ├─ Request upload URL
+  ▼
+Express API
+  │
+  ├─ Generate presigned URL
+  ▼
+S3
+  ▲
+  │
+Client uploads image directly
+  │
+  └─ Upload complete
+          │
+          ▼
+        SQS
+          │
+          ▼
+  Embedding Worker
+          │
+          ├─ Download image
+          ├─ Generate CLIP embedding
+          └─ Store vector in Pinecone
 ```
 
-### Authentication
-JWT-based authentication. Tokens are sent via `Authorization: Bearer` header. Protected routes use `authMiddleware`. The LLM route additionally uses `express-rate-limit` (10 req/min per user).
+### Search Pipeline
 
-### Security
-- LLM outputs are validated (type/range checks on filters, format validation on dates).
-- LLM-generated strings (album names, descriptions) are sanitized to prevent stored XSS.
-- OpenAI structured outputs with JSON schema enforce response format.
-- System prompt includes prompt injection defenses.
-- All database queries use parameterized inputs.
+```
+Natural Language Query
+          │
+          ▼
+       OpenAI
+          │
+          ▼
+ Structured Filters
+          │
+          ├─ Metadata Search (MySQL)
+          └─ Semantic Search (Pinecone)
+                     │
+                     ▼
+             Combined Results
+                     │
+                     ▼
+              Generated Album
+```
 
 ---
 
-## Roadmap / Missing Features
+## Technical Details
 
-### Device Mode Separation
-Currently, the app serves the same UI to all devices. In practice, the two main use cases target different form factors:
-- **Management mode** (phone / tablet / desktop) — Uploading photos, organizing albums, creating AI albums. This is done from any device, anywhere.
-- **Frame mode** (large screen / TV / dedicated display) — Running the slideshow. Typically a wall-mounted screen or a tablet left on a stand.
+### Authentication & Security
 
-These two modes should eventually be split into distinct interfaces, possibly with a dedicated "kiosk mode" for the frame that hides all management UI and just runs the slideshow.
+- JWT-based authentication
+- Protected API routes
+- Rate limiting on AI endpoints
+- Parameterized SQL queries
+- Structured LLM outputs using JSON schema validation
+- Sanitization of AI-generated content to prevent stored XSS
+- Validation of all LLM-generated filters before execution
 
-### Admin / User Management
-- No admin console — user management is done directly in the database.
-- No multi-user household support (e.g. shared albums, family groups).
-- No user self-service (password reset, account deletion).
+### Performance Considerations
 
-### Other Planned Features
-- Internationalization (i18n) — text is currently hardcoded in English, prepared for future extraction.
-- Photo metadata editor — add tags.
-- Album sharing — public/private album links.
+- Direct browser-to-S3 uploads reduce API server load.
+- Asynchronous embedding generation prevents upload delays.
+- Thumbnail generation minimizes bandwidth consumption.
+- Slideshow prefetching reduces image transition latency.
+- Pagination limits photo library payload size.
 
+---
+
+## Challenges Solved
+
+### Combining Metadata and Semantic Search
+
+Pure vector search often returns visually similar images that do not satisfy user constraints.
+
+To improve relevance, searches first apply metadata filters (dates, location, orientation) and then intersect those results with Pinecone semantic matches, producing more accurate albums.
+
+### Long-Running Image Processing
+
+Generating image embeddings can be computationally expensive.
+
+Instead of processing uploads synchronously, uploads publish jobs to SQS and return immediately. A dedicated Python worker performs embedding generation independently of the API lifecycle.
+
+---
+
+## Roadmap / Future Improvements
+
+- Dedicated kiosk interface for frame-only devices
+- Shared family albums and multi-user collaboration
+- Password reset and account self-service
+- Photo tagging and metadata editing
+- Public album sharing
