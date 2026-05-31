@@ -1,6 +1,6 @@
 # Photo Frame
 
-A full-stack photo management and digital photo frame application that combines traditional photo organization with AI-powered natural language search and semantic image retrieval.
+A full-stack photo management and digital photo frame application that combines traditional photo organization with **AI-powered** natural language search and semantic image retrieval.
 
 Live app at: https://photo-frame-app.fly.dev
 
