@@ -30,6 +30,11 @@ const UserAuth = () => {
         }
     }
 
+    const tempTexts = {
+        "UserAuth_haveAccount": "Already have an account? Login.",
+        "UserAuth_createAccount": "Create an account",
+    }
+
 
     return (
         <div className={`user-auth-wrapper ${mode}`}>
