@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react'
-import './select.scss'
-import { use } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import HollowArrow from '../HollowArrow'
+import { TextContext } from '../../Contexts/TextContext'
+import './select.scss'
 
 const Select = ({ options, noSelect, callback, value, noDefault, className }) => {
 
     const [opened, setOpened] = useState(false)
     const [selected, setSelected] = useState(null)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['Select'] || '{}')
 
 
     // for a controlled input, when value is provided. 
@@ -14,7 +16,7 @@ const Select = ({ options, noSelect, callback, value, noDefault, className }) =>
         if (value) {
             setSelected(options.find((o) => o.value === value))
         }
-    }, [value])
+    }, [value, options])
 
     const onSelect = (option) => {
         if (value) {
@@ -30,16 +32,12 @@ const Select = ({ options, noSelect, callback, value, noDefault, className }) =>
         setOpened((state) => !state)
     }
 
-    const tempContent = {
-        Select_defaultDefault: 'options'
-    }
-
     return (
         <div className={`select-wrapper ${opened ? 'opened' : ''} ${className || ''}`}>
             <div className='select-top' onClick={toggle}>
                 {selected ?
                     <span className='select-selected-option'>{selected.text}</span> :
-                    <span className='select-default-text'>{options[0]?.text || tempContent.Select_defaultDefault}</span>}
+                    <span className='select-default-text'>{options[0]?.text || compTexts.Select_defaultDefault}</span>}
                 <HollowArrow className={`select-arrow ${opened ? 'opened' : ''}`} />
             </div>
             <div className={`select-bottom ${opened ? 'opened' : ''}`}>

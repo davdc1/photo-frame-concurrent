@@ -1,5 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { AuthContext } from './Contexts/AuthContext';
+import { TextContext } from './Contexts/TextContext';
 import { init } from "@noriginmedia/norigin-spatial-navigation";
 import BottomNav from './components/BottomNav';
 import GeneralLoader from './components/GeneralLoader';
@@ -16,6 +17,11 @@ init({
 function App() {
 
   const { logout } = useContext(AuthContext)
+  const { texts } = useContext(TextContext)
+
+
+  console.log('texts AT APP', texts);
+
 
   useEffect(() => {
 

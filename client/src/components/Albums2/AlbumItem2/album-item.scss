@@ -221,7 +221,7 @@ $theRatio: 3.90625; // 500/128 = 3.90625
                     // border-radius: 1vw;
                     border: none;
                     width: min(10vw, calc(10px * $theRatio));
-                    margin-left: min(1vw, calc(1px * $theRatio));
+                    margin-inline-start: min(1vw, calc(1px * $theRatio));
                 }
 
                 .album-rename-cancel {
@@ -229,11 +229,11 @@ $theRatio: 3.90625; // 500/128 = 3.90625
                     // border-radius: 1vw;
                     border: none;
                     width: min(10vw, calc(10px * $theRatio));
-                    margin-left: min(1vw, calc(1px * $theRatio));
+                    margin-inline-start: min(1vw, calc(1px * $theRatio));
                 }
 
                 .album-item-spinner {
-                    margin-left: min(1vw, calc(1px * $theRatio));
+                    margin-inline-start: min(1vw, calc(1px * $theRatio));
                 }
             }
         }

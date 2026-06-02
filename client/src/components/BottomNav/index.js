@@ -19,8 +19,6 @@ const BottomNav = ({ links }) => {
 
         if (location.pathname === '/auth/frame') {
             setShow(false)
-            // window.addEventListener('mousemove', makeVisibleWrapper)
-            // window.addEventListener('touchstart', makeVisibleWrapper)
         } else if (!bottomNavLinks.find(link => link.path === location.pathname)) {
             setShow(false)
         } else {
@@ -33,20 +31,6 @@ const BottomNav = ({ links }) => {
             clearTimeout(visibleTimer.current)
         }
     }, [location.pathname])
-
-    // useEffect(() => {
-    //     if (location.pathname === '/auth/frame') {
-    //         makeVisible({ time: 5000 })
-    //     } else if (!bottomNavLinks.find(link => link.path === location.pathname)) {
-    //         setShow(false)
-    //     } else {
-    //         setShow(true)
-    //     }
-
-    //     return () => {
-    //         clearTimeout(visibleTimer.current)
-    //     }
-    // }, [location])
 
     const makeVisible = ({ event, time }) => {
         if (visibleTimer.current) clearTimeout(visibleTimer.current)
@@ -61,7 +45,6 @@ const BottomNav = ({ links }) => {
             <ul className="bottom-nav-list">
                 {bottomNavLinks.map(({ text, heb_text, path, iconType }, idx) => (
                     <div className='bottom-nav-link' key={text + idx}>
-                        {/* <NavLink to={path}>{heb_text || text}</NavLink> */}
                         <NavLink to={path} className='nav-link'>
                             <Icon type={iconType} className='bottom-nav-icon' />
                             <span className=''>{heb_text || text}</span>

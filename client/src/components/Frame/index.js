@@ -1,8 +1,9 @@
 
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { photoService } from '../../services/photoService'
+import { TextContext } from '../../Contexts/TextContext'
 import { intervalUnits, localStorageKeys, playListDataKeys, sessionOrderTypes, transitionClasses, transitionTypes, unitToSeconds } from '../../utils/consts'
 import exitFullScreen from '../../images/svgs/exit-full-screen.svg'
 import enterFullScreen from '../../images/svgs/full-screen.svg'
@@ -12,6 +13,9 @@ import './frame.scss'
 const AS_URL = true
 
 const Frame = () => {
+
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['Frame'] || '{}')
 
     const [noPhotos, setNoPhotos] = useState(false)
     const [sessionId, setSessionId] = useState(null)
@@ -30,6 +34,7 @@ const Frame = () => {
     const intervalRef = useRef(null)
     const showKeysTimerRef = useRef(null)
     const queIdCounter = useRef(0)
+    const isFetchingInitial = useRef(false) // true while getFive() is running; suppresses fillQue
 
     const location = useLocation()
     const navigate = useNavigate()
@@ -77,6 +82,7 @@ const Frame = () => {
     }, [imageUrls, images])
 
     useEffect(() => {
+        if (isFetchingInitial.current) return // getFive() is running; don't race it
         if (AS_URL) {
             if (imageUrls.length < 5) fillQue()
         } else {
@@ -112,7 +118,7 @@ const Frame = () => {
         const { playlist } = getPlayListData()
         const session_id = localStorage.getItem(localStorageKeys.PHOTO_SESSION_ID)
         const sessionType = location.state?.sessionType
-        const transitionType = localStorage.getItem(localStorageKeys.TRANSITION_TYPE) // TODO: default?
+        const transitionType = localStorage.getItem(localStorageKeys.TRANSITION_TYPE)
 
         let count = await getUserPhotoCount()
         if (count === 0) {
@@ -151,14 +157,21 @@ const Frame = () => {
     }
 
     const getFive = () => {
-
-        // why sequential? 
+        isFetchingInitial.current = true
+        // Sequential fetches to prevent concurrent server session cursor races
         return getAPhoto()
             .then(() => getAPhoto())
             .then(() => getAPhoto())
             .then(() => getAPhoto())
             .then(() => getAPhoto())
-            .then(() => startCycle())
+            .then(() => {
+                isFetchingInitial.current = false
+                return startCycle()
+            })
+            .catch((err) => {
+                isFetchingInitial.current = false
+                return Promise.reject(err)
+            })
     }
 
     const getSlideShowInterval = () => {
@@ -224,7 +237,6 @@ const Frame = () => {
         let album_id
         let playListData = getPlayListData()
 
-        // sketch:
         if (!playListData?.all_photos && playListData?.play_next_album) {
             album_id = playListData.playlist[playListData.play_next_album]
             updatePlayListData({ key: playListDataKeys.CURRENT_PLAYLIST_ALBUM, value: playListData.play_next_album })
@@ -243,8 +255,6 @@ const Frame = () => {
 
                 if (!AS_URL) {
 
-                    // const { meta, image } = res.data
-
                     const base64 = btoa(
                         new Uint8Array(res.data).reduce(
                             (data, byte) => data + String.fromCharCode(byte),
@@ -254,7 +264,6 @@ const Frame = () => {
                     const imageUrl = `data:image/jpeg;base64,${base64}`;
                     const image = new Image()
                     image.src = imageUrl
-                    // setOneImage(imageUrl)
                     setImages((state) => {
                         return [...state, image]
                     });
@@ -369,10 +378,6 @@ const Frame = () => {
 
     let transitionTimes = getTransitionTimes()
 
-    const tempTexts = {
-        Frame_noPhotosLine1: 'No photos yet.',
-        Frame_noPhotosLine2: 'Upload some photos to get started.'
-    }
 
     return (
         <div className='frame-wrapper'
@@ -386,8 +391,8 @@ const Frame = () => {
             <div className={`container ${noPhotos ? 'no-photos' : ''}`} >
 
                 {noPhotos ? <div className='no-photos-box'>
-                    <h3>{tempTexts.Frame_noPhotosLine1}</h3>
-                    <NavLink to='/auth/photos' state={{ openUploadModal: true }} ref={noPhotosFocus.ref}>{tempTexts.Frame_noPhotosLine2}</NavLink>
+                    <h3>{compTexts.Frame_noPhotosLine1}</h3>
+                    <NavLink to='/auth/photos' state={{ openUploadModal: true }} ref={noPhotosFocus.ref}>{compTexts.Frame_noPhotosLine2}</NavLink>
                 </div> : ''}
 
                 {/* as file: */}
@@ -410,7 +415,7 @@ const Frame = () => {
 
             {showKeys && !noPhotos ?
                 <div className='frame-key-container'>
-                    <button className='go-button' onClick={toggleGo} ref={goStopFocus.ref}>{go ? 'stop' : 'go'}</button>
+                    <button className='go-button' onClick={toggleGo} ref={goStopFocus.ref}>{go ? compTexts.Frame_stop : compTexts.Frame_go}</button>
                     {/* <button onClick={() => makeTheShift(true)}>shift</button> */}
                     {canFullscreen ?
                         <button className='frame-full-screen-btn' onClick={toggleFullscreen} ref={fullscreenFocus.ref}>

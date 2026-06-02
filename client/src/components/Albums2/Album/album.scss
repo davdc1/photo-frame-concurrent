@@ -27,7 +27,7 @@
             height: 5vh;
 
             .back-btn {
-                margin-right: auto;
+                margin-inline-end: auto;
                 background: none;
                 border: solid 2px var(--btn-color-2);
                 color: var(--text-color);
@@ -130,6 +130,7 @@
         .album-photo-list {
             display: flex;
             flex-wrap: wrap;
+            direction: ltr;
 
 
 

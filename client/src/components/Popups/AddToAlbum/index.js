@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react'
 import { PopupContext } from '../../../Contexts/PopupContext'
+import { TextContext } from '../../../Contexts/TextContext'
 import { photoService } from '../../../services/photoService'
 import Spinner from '../../Spinner'
 import './add-to-album.scss'
@@ -10,6 +11,8 @@ const AddToAlbum = () => {
     const [loading, setLoading] = useState(false)
 
     const { toggle, payload } = useContext(PopupContext)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['AddToAlbum'] || '{}')
 
     const onSelect = (album) => {
         setSelectedAlbum(album.id === selectedAlbum ? null : album.id)
@@ -36,10 +39,11 @@ const AddToAlbum = () => {
     // Skip first entry (the "Add photos to album" header option from Select)
     // const albums = (payload.albums || []).filter((a) => a.id)
 
+
     return (
         <div className="add-to-album-wrapper">
 
-            <h3 className='add-to-album-title'>Add to Album</h3>
+            <h3 className='add-to-album-title'>{compTexts.AddToAlbum_title}</h3>
 
             <div className='add-to-album-list'>
                 {payload.albums.map((album) => (
@@ -61,8 +65,8 @@ const AddToAlbum = () => {
             </div>
 
             <div className='add-to-album-buttons'>
-                <button className='cancel' onClick={toggle}>Cancel</button>
-                <button className='ok' disabled={!selectedAlbum} onClick={addToAlbum}>Add</button>
+                <button className='cancel' onClick={toggle}>{compTexts.AddToAlbum_cancel}</button>
+                <button className='ok' disabled={!selectedAlbum} onClick={addToAlbum}>{compTexts.AddToAlbum_ok}</button>
             </div>
             <div className='spinner-container'>
                 {loading ? <Spinner className='spinner' /> : ''}

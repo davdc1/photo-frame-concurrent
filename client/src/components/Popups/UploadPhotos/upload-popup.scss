@@ -16,12 +16,14 @@
         .upload-close {
             rotate: 45deg;
             font-size: 30px;
-            padding: 3% 2% 0 0;
+            padding-top: 2%;
+            padding-inline-start: 3.5%;
             font-weight: 500;
-            margin-left: auto;
+            margin-inline-end: auto;
             border: none;
             background: none;
             cursor: pointer;
+            color: var(--text-color);
         }
     }
 
@@ -32,7 +34,7 @@
         display: flex;
         align-items: center;
         margin-top: 24px;
-        padding-left: 60px;
+        padding-inline-start: 60px;
 
         .upload-input-label {
             display: flex;
@@ -65,7 +67,7 @@
         }
 
         .upload-spinner-container {
-            margin-left: 25px;
+            margin-inline-start: 25px;
             width: 35px;
 
             .upload-spinner {
@@ -151,13 +153,13 @@
         display: flex;
         align-items: center;
         margin-top: 1rem;
-        margin-left: 45px;
+        margin-inline-start: 45px;
         margin-bottom: 1.8rem;
 
         .upload-submit {}
 
         .upload-submit-spinner-container {
-            margin-left: 20px;
+            margin-inline-start: 20px;
             width: 25px;
 
             img {
@@ -184,14 +186,15 @@
         // }
 
         .upload-input-container {
-            padding-left: 45px;
+            // padding-left: 45px;
+            padding-inline-start: 45px;
 
             // .upload-input-label {
             //     #upload-input {
             //     }
             // }
             .upload-spinner-container {
-                margin-left: 10px;
+                margin-inline-start: 10px;
                 // .upload-spinner {
                 // }
             }

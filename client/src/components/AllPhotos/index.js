@@ -1,14 +1,15 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { AuthContext } from '../../Contexts/AuthContext'
 import { LoaderContext } from '../../Contexts/LoaderContext'
 import { PopupContext } from '../../Contexts/PopupContext'
+import { TextContext } from '../../Contexts/TextContext'
 import ThumbnailSelect from '../ThumbnailSelect'
-import { photoService } from '../../services/photoService'
 import Icon from '../Icon'
 import Spinner from '../Spinner'
+import { photoService } from '../../services/photoService'
 import './all-photos.scss'
-import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 
 const FETCH_MODES = { SCROLL: 'SCROLL', PAGINATION: 'PAGINATION' }
 const FETCH_MODE = FETCH_MODES.SCROLL
@@ -29,6 +30,8 @@ const AllPhotos = () => {
     const { userInfo } = useContext(AuthContext)
     const { toggle } = useContext(PopupContext)
     const { setLoader } = useContext(LoaderContext)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['AllPhotos'] || '{}')
 
     const location = useLocation()
     const navigate = useNavigate()
@@ -119,7 +122,7 @@ const AllPhotos = () => {
             setUserAlbums((state) => ({ ...state, loading: true }))
             let res = await photoService.getUserAlbums({ userId })
             const albums = res.data.map(({ name, id, cover, has_photos }) => ({ text: name, id, cover, has_photos }))
-            // albums.unshift({ text: tempContent.AllPhotos_addToAlbum })
+            // albums.unshift({ text: compTexts.AllPhotos_addToAlbum })
             setUserAlbums((state) => ({ ...state, albums, loading: false }))
         } catch (error) {
             console.log('getUserAlbums Error', error);
@@ -222,9 +225,9 @@ const AllPhotos = () => {
         toggle({
             popupType: 'Confirm',
             payload: {
-                okText: tempContent.AllPhotos_delete,
-                cancelText: tempContent.AllPhotos_cancel,
-                title: tempContent.AllPhotos_deletePhotosPrompt,
+                okText: compTexts.AllPhotos_delete,
+                cancelText: compTexts.AllPhotos_cancel,
+                title: compTexts.AllPhotos_deletePhotosPrompt,
                 okCallback: async () => {
                     await deleteItems()
                     toggle()
@@ -271,22 +274,6 @@ const AllPhotos = () => {
 
     const addingFromAlbum = location.state?.albumName
 
-    const tempContent = {
-        AllPhotos_add: "upload photos",
-        AllPhotos_select: 'select',
-        AllPhotos_cancel: 'cancel',
-        AllPhotos_delete: 'Delete',
-        AllPhotos_actions: 'Actions',
-        AllPhotos_gettingList: 'getting photos',
-        AllPhotos_addToAlbum: 'Add photos to album',
-        AllPhotos_addFromAlbumTitle: 'Select Photos to add to album:',
-        AllPhotos_back: 'Back',
-        AllPhotos_add: 'Add',
-        AllPhotos_noPhotos: 'no photos',
-        AllPhotos_noPhotosAdd: 'click to upload',
-        AllPhotos_deletePhotosPrompt: 'Are you sure you want to delete these photos?',
-        AllPhotos_endOfList: 'end of list'
-    }
 
     return (
         <div className='all-photos-wrapper'>
@@ -294,14 +281,14 @@ const AllPhotos = () => {
                 <div className='all-photos-btn-row'>
                     {location.state?.fromAlbum ? (
                         <>
-                            <button className='back-btn' onClick={backToAlbum} ref={backButtonFocus.ref}>{tempContent.AllPhotos_back}</button>
-                            <button className='add-btn' onClick={addToAlbum} ref={addButtonFocus.ref} disabled={!Object.values(selected).find((v) => v === true)}>{tempContent.AllPhotos_add}</button>
+                            <button className='back-btn' onClick={backToAlbum} ref={backButtonFocus.ref}>{compTexts.AllPhotos_back}</button>
+                            <button className='add-btn' onClick={addToAlbum} ref={addButtonFocus.ref} disabled={!Object.values(selected).find((v) => v === true)}>{compTexts.AllPhotos_add}</button>
                         </>
                     ) : (
                         <>
                             <button className='upload-btn' onClick={uploadPopup} ref={addButtonFocus.ref}>
                                 <Icon type='plus' className='btn-icon' />
-                                <span>{tempContent.AllPhotos_add}</span>
+                                <span>{compTexts.AllPhotos_add}</span>
                             </button>
 
                             <button
@@ -312,16 +299,16 @@ const AllPhotos = () => {
                             >
                                 {!select ? <Icon type='select' className='btn-icon' /> : ''}
 
-                                <span>{select ? tempContent.AllPhotos_cancel : tempContent.AllPhotos_select}</span>
+                                <span>{select ? compTexts.AllPhotos_cancel : compTexts.AllPhotos_select}</span>
                             </button>
 
                             {Object.values(selected).find((v) => v === true) && (
                                 <>
 
-                                    <button className='delete-btn' onClick={confirmDeletePhotos} ref={deleteButtonFocus.ref}>{tempContent.AllPhotos_delete}</button>
+                                    <button className='delete-btn' onClick={confirmDeletePhotos} ref={deleteButtonFocus.ref}>{compTexts.AllPhotos_delete}</button>
 
-                                    {userAlbums.albums.length > 1 && (
-                                        <button className='add-to-album-btn' onClick={toggleAddToAlbum} ref={addToAlbumButtonFocus.ref}>{'add to album'}</button>
+                                    {userAlbums.albums.length > 0 && (
+                                        <button className='add-to-album-btn' onClick={toggleAddToAlbum} ref={addToAlbumButtonFocus.ref}>{compTexts.AllPhotos_addToAlbum}</button>
                                     )}
                                 </>
                             )}
@@ -332,7 +319,7 @@ const AllPhotos = () => {
                 </div>
 
                 {location.state?.fromAlbum && (
-                    <div className='all-photos-title'>{`${tempContent.AllPhotos_addFromAlbumTitle} ${addingFromAlbum}`}</div>
+                    <div className='all-photos-title'>{`${compTexts.AllPhotos_addFromAlbumTitle} ${addingFromAlbum}`}</div>
                 )}
 
                 <div className='selected-count'>
@@ -347,12 +334,12 @@ const AllPhotos = () => {
 
                     {list.map((item, idx) => <ThumbnailSelect params={{ item, onSelectItem, select, selected, disable: actionLoading }} key={idx.toString()} />)}
 
-                    {endOfList ? <div className='end-of-list'>{tempContent.AllPhotos_endOfList}</div> : ''}
+                    {endOfList ? <div className='end-of-list'>{compTexts.AllPhotos_endOfList}</div> : ''}
                     {listLoading ? <Spinner className='all-photos-loading' /> : ''}
                     {noPhotos && (
                         <div className='no-photos'>
-                            <span className='no-photos-text'>{tempContent.AllPhotos_noPhotos}</span>
-                            <span className='no-photos-add' onClick={uploadPopup}>{tempContent.AllPhotos_noPhotosAdd}</span>
+                            <span className='no-photos-text'>{compTexts.AllPhotos_noPhotos}</span>
+                            <span className='no-photos-add' onClick={uploadPopup}>{compTexts.AllPhotos_noPhotosAdd}</span>
                         </div>
                     )}
                 </div>

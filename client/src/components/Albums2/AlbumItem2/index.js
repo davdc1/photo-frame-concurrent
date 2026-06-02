@@ -1,5 +1,6 @@
 import { useContext, useState } from "react"
 import { PopupContext } from "../../../Contexts/PopupContext"
+import { TextContext } from "../../../Contexts/TextContext"
 import Icon from "../../Icon"
 import { photoService } from "../../../services/photoService"
 import './album-item.scss'
@@ -14,6 +15,8 @@ const AlbumItem = ({ data: { name, id, cover, photo_count, clickHandler, selecte
     const [loaded, setLoaded] = useState(false)
 
     const { toggle } = useContext(PopupContext)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['AlbumItem'] || '{}')
 
     const doSomthing = ({ target }) => {
         if (target.closest('.album-item-menu-container') || edit) return
@@ -62,9 +65,9 @@ const AlbumItem = ({ data: { name, id, cover, photo_count, clickHandler, selecte
         toggle({
             popupType: 'Confirm',
             payload: {
-                okText: tempContent.AlbumItem_yes,
-                cancelText: tempContent.AlbumItem_no,
-                title: tempContent.AlbumItem_deletePrompt,
+                okText: compTexts.AlbumItem_yes,
+                cancelText: compTexts.AlbumItem_no,
+                title: compTexts.AlbumItem_deletePrompt,
                 okCallback: async () => {
                     await deleteAlbum(id)
                     toggle()
@@ -75,13 +78,6 @@ const AlbumItem = ({ data: { name, id, cover, photo_count, clickHandler, selecte
     }
 
 
-    const tempContent = {
-        AlbumItem_photoCount: 'Photos',
-        AlbumItem_yes: 'Yes',
-        AlbumItem_no: 'No',
-        AlbumItem_deletePrompt: 'Are you sure you want to delete this album?',
-        AlbumItem_empty: 'No photos',
-    }
 
     return (
         <div
@@ -93,8 +89,8 @@ const AlbumItem = ({ data: { name, id, cover, photo_count, clickHandler, selecte
             <div className="album-item-menu-container">
                 {showMenu && (
                     <div className="album-item-menu-dropdown">
-                        <button onClick={toggleEdit} className="album-item-btn rename">Rename</button>
-                        <button onClick={handleDelete} className="album-item-btn delete">Delete</button>
+                        <button onClick={toggleEdit} className="album-item-btn rename">{compTexts.AlbumItem_rename}</button>
+                        <button onClick={handleDelete} className="album-item-btn delete">{compTexts.AlbumItem_delete}</button>
                     </div>
                 )}
                 <button className="album-item-menu-btn" onClick={toggleMenu}>
@@ -115,7 +111,7 @@ const AlbumItem = ({ data: { name, id, cover, photo_count, clickHandler, selecte
                 </>
             ) :
                 <div className="album-item-cover empty">
-                    <span className="album-item-empty">{tempContent.AlbumItem_empty}</span>
+                    <span className="album-item-empty">{compTexts.AlbumItem_empty}</span>
                 </div>
             }
             <div className="album-item-bottom">
@@ -138,7 +134,7 @@ const AlbumItem = ({ data: { name, id, cover, photo_count, clickHandler, selecte
                         ) :
                             <span className="album-item-name">{name}</span>
                     }
-                    <span className="album-item-photo-count">{`${photo_count || 0} ${tempContent.AlbumItem_photoCount}`}</span>
+                    <span className="album-item-photo-count">{`${photo_count || 0} ${compTexts.AlbumItem_photoCount}`}</span>
                 </div>
 
             </div>

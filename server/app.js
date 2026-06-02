@@ -8,10 +8,10 @@ var bodyParser = require('body-parser')
 var logger = require('morgan');
 
 var userRouter = require('./routes/user')
-var indexRouter = require('./routes/index');
 var photoRouter = require('./routes/photo')
 var albumRouter = require('./routes/album')
 var llmRouter = require('./routes/llm')
+var textRouter = require('./routes/text')
 
 var app = express();
 // const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000'
@@ -44,6 +44,7 @@ app.use('/user', userRouter);
 app.use('/photos', photoRouter);
 app.use('/albums', albumRouter)
 app.use('/llm', llmRouter)
+app.use('/texts', textRouter)
 
 // SPA catch-all — serve React app for any unmatched route
 app.use(express.static(path.join(__dirname, '../client/build')));

@@ -1,16 +1,17 @@
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom'
 import { AuthContextProvider } from './Contexts/AuthContext';
-import { PopupContextProvider } from './Contexts/PopupContext';
-import { ThemeContextProvider } from './Contexts/ThemeContext';
 import { LoaderContextProvider } from './Contexts/LoaderContext';
+import { PopupContextProvider } from './Contexts/PopupContext';
+import { TextContextProvider } from './Contexts/TextContext';
+import { ThemeContextProvider } from './Contexts/ThemeContext';
 import App from './App';
-import './index.css';
-import reportWebVitals from './reportWebVitals';
+import ErrorBoundary from './components/ErrorBoundary';
 import { setAxiosDefaults, axiosIntercept } from './utils/serviceDefaults';
 import { localStorageKeys } from './utils/consts';
 import { initStorage } from './utils/initStorage';
-import ErrorBoundary from './components/ErrorBoundary';
+import reportWebVitals from './reportWebVitals';
+import './index.css';
 
 initStorage()
 
@@ -25,13 +26,15 @@ root.render(
   <ErrorBoundary>
     <BrowserRouter>
       <AuthContextProvider>
-        <ThemeContextProvider>
-          <LoaderContextProvider>
-            <PopupContextProvider>
-              <App />
-            </PopupContextProvider>
-          </LoaderContextProvider>
-        </ThemeContextProvider>
+        <TextContextProvider>
+          <ThemeContextProvider>
+            <LoaderContextProvider>
+              <PopupContextProvider>
+                <App />
+              </PopupContextProvider>
+            </LoaderContextProvider>
+          </ThemeContextProvider>
+        </TextContextProvider>
       </AuthContextProvider>
     </BrowserRouter>
   </ErrorBoundary>

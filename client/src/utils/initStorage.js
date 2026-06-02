@@ -1,4 +1,4 @@
-import { localStorageKeys, intervalUnits, transitionTypes } from './consts'
+import { localStorageKeys, intervalUnits, transitionTypes, lngCodes } from './consts'
 
 const defaults = {
     [localStorageKeys.SLIDE_SHOW_INTERVAL]: '30',
@@ -6,6 +6,7 @@ const defaults = {
     [localStorageKeys.INTERVAL_UNIT]: intervalUnits.SECONDS,
     [localStorageKeys.FRAME_APP_STORE]: '{}',
     [localStorageKeys.PLAY_LIST_DATA]: '{}',
+    [localStorageKeys.LANGUAGE]: lngCodes.ENGLISH,
 }
 
 // Sets default localStorage values for keys that don't exist yet.

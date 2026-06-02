@@ -1,14 +1,18 @@
 import { useContext, useState } from 'react'
-import { intervalUnits, localStorageKeys, sessionOrderTypes, transitionTypes } from '../../utils/consts'
+import { ThemeContext } from '../../Contexts/ThemeContext'
+import { TextContext } from '../../Contexts/TextContext'
+import Spinner from '../Spinner'
 import InputField from '../InputField'
 import Select from '../Select'
 import Toggle from '../Toggle'
-import ThemeContext from '../../Contexts/ThemeContext'
+import { intervalUnits, localStorageKeys, sessionOrderTypes, transitionTypes, lngCodes } from '../../utils/consts'
 import './settings.scss'
 
 const Settings = () => {
 
     const { theme, toggleTheme } = useContext(ThemeContext)
+    const { texts, lng, setLanguage, textLoading } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['Settings'] || '{}')
 
     const [slideShowInterval, setSlideShowInterval] = useState(localStorage.getItem(localStorageKeys.SLIDE_SHOW_INTERVAL) || 30)
     const [transitionType, setTransitionType] = useState(localStorage.getItem(localStorageKeys.TRANSITION_TYPE) || 'slide')
@@ -54,6 +58,10 @@ const Settings = () => {
         setChanged((state) => ({ ...state, sessionOrder: true }))
     }
 
+    const handleLanguage = (option) => {
+        setLanguage(option.value)
+    }
+
     const handleThemeToggle = () => {
         toggleTheme()
     }
@@ -73,32 +81,22 @@ const Settings = () => {
         })
     }
 
-    const tempContent = {
-        Settings_title: 'Settings',
-        Settings_slideShowInterval: 'Slide Show Interval',
-        Settings_transitionType: 'Transition Type',
-        Settings_intervalUnit: 'Interval Unit',
-        Settings_sessionOrder: 'Slideshow Order',
-        Settings_randomRemark: '(does not apply to playlists/albums)',
-        Settings_themeToggle: 'Theme',
-        Settings_saveButton: 'Save'
-    }
-
     return (
         <div className='settings-wrapper'>
 
             <div className='settings-box'>
-                <h1>{tempContent.Settings_title}</h1>
+                <h1>{compTexts.Settings_title}</h1>
 
                 <div className='slide-show-interval'>
 
-                    <InputField label={tempContent.Settings_slideShowInterval}>
+                    <InputField label={compTexts.Settings_slideShowInterval}>
                         <div className='slide-show-interval-inner'>
                             <input inputMode='numeric' id='slideShowInterval' value={slideShowInterval} onChange={handleInput} onBlur={handleBlur} />
                             <Select
                                 options={Object.keys(intervalUnits).map((unit) => ({
                                     value: intervalUnits[unit],
-                                    text: unit.toLowerCase()
+                                    text: compTexts[`Settings_${unit.toLowerCase()}`] ?
+                                        `${compTexts[`Settings_${unit.toLowerCase()}`]}` : `${unit.toLowerCase()}`
                                 }))}
                                 value={intervalUnit}
                                 callback={handleIntervalUnit}
@@ -111,11 +109,12 @@ const Settings = () => {
 
                 <div className='transition-type'>
 
-                    <InputField label={tempContent.Settings_transitionType}>
+                    <InputField label={compTexts.Settings_transitionType}>
                         <Select
                             options={Object.keys(transitionTypes).map((type) => ({
                                 value: transitionTypes[type],
-                                text: type.toLowerCase()
+                                text: compTexts[`Settings_${type.toLowerCase()}`] ?
+                                    `${compTexts[`Settings_${type.toLowerCase()}`]}` : `${type.toLowerCase()}`
                             }))}
                             value={transitionType}
                             callback={handleTransitionType}
@@ -125,11 +124,13 @@ const Settings = () => {
                 </div>
 
                 <div className='session-order'>
-                    <InputField label={tempContent.Settings_sessionOrder}>
+                    <InputField label={compTexts.Settings_sessionOrder}>
                         <Select
                             options={Object.keys(sessionOrderTypes).map((type) => ({
                                 value: sessionOrderTypes[type],
-                                text: `${type.toLowerCase()} ${type === sessionOrderTypes.RANDOM ? tempContent.Settings_randomRemark : ''}`
+                                text: compTexts[`Settings_${type.toLowerCase()}`] ?
+                                    `${compTexts[`Settings_${type.toLowerCase()}`]}${type === sessionOrderTypes.RANDOM ? ` ${compTexts.Settings_randomRemark}` : ''}` :
+                                    `${type.toLowerCase()}`
                             }))}
                             value={sessionOrder}
                             callback={handleSessionOrder}
@@ -138,11 +139,33 @@ const Settings = () => {
                     </InputField>
                 </div>
 
-                <div className='theme-toggle'>
-                    <Toggle label={tempContent.Settings_themeToggle} value={theme} modes={['light', 'dark']} onChange={handleThemeToggle} />
+                <div className='apps-language'>
+                    <InputField
+                        label={<span> {compTexts.Settings_appLanguage} {textLoading ? <Spinner className={'language-spinner'} name="spinner" /> : ''} </span>}
+                    >
+                        <Select
+                            options={Object.keys(lngCodes).map((lng) => ({
+                                value: lngCodes[lng],
+                                text: compTexts[`Settings_${lng.toLowerCase()}`] ?
+                                    `${compTexts[`Settings_${lng.toLowerCase()}`]}` : `${lng.toLowerCase()}`
+                            }))}
+                            value={lng}
+                            callback={handleLanguage}
+                            noDefault={true}
+                        />
+                    </InputField>
                 </div>
 
-                <button className='save-button' disabled={Object.values(changed).every((value) => !value)} onClick={saveSettings}>{tempContent.Settings_saveButton}</button>
+                <div className='theme-toggle'>
+                    <Toggle
+                        label={compTexts.Settings_themeToggle}
+                        value={theme}
+                        modes={[{ value: 'light', text: compTexts.Settings_light }, { value: 'dark', text: compTexts.Settings_dark }]}
+                        onChange={handleThemeToggle}
+                    />
+                </div>
+
+                <button className='save-button' disabled={Object.values(changed).every((value) => !value)} onClick={saveSettings}>{compTexts.Settings_saveButton}</button>
             </div>
         </div>
     )

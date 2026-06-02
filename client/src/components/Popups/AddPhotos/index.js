@@ -1,16 +1,19 @@
 import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PopupContext } from '../../../Contexts/PopupContext'
+import { TextContext } from '../../../Contexts/TextContext'
 import './add-photos.scss'
 
 const AddPhotosPopup = () => {
 
     const { toggle, payload } = useContext(PopupContext)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['AddPhotos'] || '{}')
     const navigate = useNavigate()
 
     const toggleUploadPopup = () => {
         console.log('PAYLOADDDD', payload);
-        
+
         toggle({ popupType: 'Upload', payload })
     }
 
@@ -24,15 +27,10 @@ const AddPhotosPopup = () => {
         navigate('/auth/photos', { state: { fromAlbum: true, album_id: album.id, albumName: album.name } })
     }
 
-    const tempContent = {
-        addPhotos_title: 'would you like to',
-        addPhotos_add: 'add from library',
-        addPhotos_upload: 'upload new'
-    }
     return (
         <div className='add-photos-wrapper'>
             <span className='add-photos-title'>
-                {tempContent.addPhotos_title}
+                {compTexts.AddPhotos_title}
             </span>
 
             <div className='add-photos-buttons'>
@@ -41,13 +39,13 @@ const AddPhotosPopup = () => {
                     onClick={goToLibrary}
                     className='add-photos-button'
                 >
-                    {tempContent.addPhotos_add}
+                    {compTexts.AddPhotos_add}
                 </button>
                 <button
                     onClick={toggleUploadPopup}
                     className='add-photos-button'
                 >
-                    {tempContent.addPhotos_upload}
+                    {compTexts.AddPhotos_upload}
                 </button>
             </div>
         </div>

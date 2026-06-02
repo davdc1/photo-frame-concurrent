@@ -3,16 +3,16 @@ import Resizer from "react-image-file-resizer";
 const resizeImage = (file) => {
     return new Promise((resolve, reject) => {
         try {
-            Resizer.imageFileResizer (
+            Resizer.imageFileResizer(
                 file,
-                300,
-                300,
+                400,
+                400,
                 'jpeg',
-                80,
+                100,
                 0,
                 (uri) => resolve(uri),
                 'file',
-              )
+            )
         } catch (error) {
             console.log('resize error', error);
             reject(error)

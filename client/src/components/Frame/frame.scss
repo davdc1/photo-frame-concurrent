@@ -12,7 +12,6 @@ $noPhotosHeight: clamp(300px, 35dvh, 1000px);
 
     .container {
         height: 100%;
-        // background-color: rgb(35, 35, 35);
         background-color: black;
 
         &.no-photos {
@@ -40,7 +39,6 @@ $noPhotosHeight: clamp(300px, 35dvh, 1000px);
 
             height: 100%;
             width: 100vw;
-            // background-color: rgb(35, 35, 35);
             background-color: black;
 
             display: flex;
@@ -50,9 +48,6 @@ $noPhotosHeight: clamp(300px, 35dvh, 1000px);
             will-change: opacity, transform;
 
             .image-type-3 {
-                // height: 100%;
-                // width: 100vw;
-
                 width: 100vw;
                 height: 100dvh;
                 object-fit: contain;
@@ -177,14 +172,11 @@ $noPhotosHeight: clamp(300px, 35dvh, 1000px);
         bottom: 2dvh;
         right: 2dvh;
         z-index: 10;
-        // width: 3dvw;
         min-width: 30px;
-
         display: flex;
         flex-direction: column;
         gap: 0.9vw;
         align-items: stretch;
-
 
         .frame-full-screen-btn,
         .go-button {
@@ -196,12 +188,6 @@ $noPhotosHeight: clamp(300px, 35dvh, 1000px);
                 width: clamp(40px, 3vw, 100px);
             }
         }
-
-        // @media screen and (max-width: 600px) {
-        //     bottom: 8dvh;
-        // }
-
-
     }
 
     .empty-que-spinner {

@@ -26,7 +26,7 @@
 
             .btn-icon {
                 width: clamp(16px, 2vw, 28px);
-                margin-right: clamp(4px, 1vw, 10px);
+                margin-inline-end: clamp(4px, 1vw, 10px);
             }
 
             .upload-btn {
@@ -45,7 +45,7 @@
             }
 
             .delete-btn {
-                margin-right: auto;
+                margin-inline-end: auto;
                 background: none;
                 border: solid 2px var(--btn-color-2);
                 color: var(--text-color);
@@ -109,6 +109,7 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             padding-top: 2dvh;
+            direction: ltr;
 
             // 5 per row
             @media (min-width: 600px) {

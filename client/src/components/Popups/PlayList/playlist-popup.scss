@@ -38,12 +38,12 @@
             }
 
             .playlist-item-number {
-                margin-right: 7%;
+                margin-inline-end: 7%;
                 color: var(--text-color-2);
             }
 
             .playlist-item-name {
-                margin-right: auto;
+                margin-inline-end: auto;
                 color: var(--text-color);
             }
 
@@ -98,7 +98,7 @@
                 width: 100%;
 
                 :first-child {
-                    margin-right: 2%;
+                    margin-inline-end: 2%;
                 }
             }
         }

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { PopupContext } from '../../../Contexts/PopupContext'
+import { TextContext } from '../../../Contexts/TextContext'
 import { photoService } from '../../../services/photoService'
 import LoadingMask from './LoadingMask'
 import Spinner from '../../Spinner'
@@ -13,6 +14,8 @@ const TOP_OF_LIST = 'TOL'
 const Album = ({ album_id, album, removeDeletedAlbum, goBack }) => {
 
     const { toggle } = useContext(PopupContext)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['Album'] || '{}')
 
     const [page, setPage] = useState(0)
     const [list, setList] = useState([])
@@ -434,9 +437,9 @@ const Album = ({ album_id, album, removeDeletedAlbum, goBack }) => {
         toggle({
             popupType: 'Confirm',
             payload: {
-                okText: tempContent.Album_yes,
-                cancelText: tempContent.Album_no,
-                title: tempContent.Album_deletePrompt,
+                okText: compTexts.Album_yes,
+                cancelText: compTexts.Album_no,
+                title: compTexts.Album_deletePrompt,
                 okCallback: deleteAlbum,
                 cancelCallback: toggle
             }
@@ -447,9 +450,9 @@ const Album = ({ album_id, album, removeDeletedAlbum, goBack }) => {
         toggle({
             popupType: 'Confirm',
             payload: {
-                okText: tempContent.Album_yes,
-                cancelText: tempContent.Album_no,
-                title: tempContent.Album_deletePhotosPrompt,
+                okText: compTexts.Album_yes,
+                cancelText: compTexts.Album_no,
+                title: compTexts.Album_deletePhotosPrompt,
                 okCallback: removePhotos,
                 cancelCallback: toggle
             }
@@ -460,32 +463,14 @@ const Album = ({ album_id, album, removeDeletedAlbum, goBack }) => {
         toggle({
             popupType: 'Confirm',
             payload: {
-                title: tempContent.Album_deleteErrorTitle,
-                okText: tempContent.Album_deleteErrorClose,
+                title: compTexts.Album_deleteErrorTitle,
+                okText: compTexts.Album_deleteErrorClose,
                 okCallback: toggle
             }
         })
     }
 
     const photosSelected = Object.values(selected).filter((bool) => (!!bool)).length
-
-    const tempContent = {
-        Album_seePlayList: 'go to playlist',
-        Album_addPhotos: 'add photos',
-        Album_select: 'select',
-        Album_deleteAlbum: 'delete album',
-        Album_deletePrompt: 'delete album?',
-        Album_yes: 'yes',
-        Album_no: 'no',
-        Album_deleteErrorTitle: 'an error occurred',
-        Album_deleteErrorClose: 'close',
-        Album_deletePhotos: 'delete photos',
-        Album_deletePhotosPrompt: 'remove photos from album?',
-        Album_cancel: 'cancel',
-        Album_backToAlbums: 'Back',
-        Album_endOfList: 'end of list',
-        Album_noPhotos: 'no photos'
-    }
 
 
 
@@ -621,17 +606,17 @@ const Album = ({ album_id, album, removeDeletedAlbum, goBack }) => {
 
                     <div className='albums-btn-row'>
 
-                        <button className='back-btn' onClick={goBack}>{tempContent.Album_backToAlbums}</button>
+                        <button className='back-btn' onClick={goBack}>{compTexts.Album_backToAlbums}</button>
 
 
                         {photosSelected > 0 && (
-                            <button className='remove-btn' onClick={confirmRemovePhotos}>{tempContent.Album_deletePhotos}</button>
+                            <button className='remove-btn' onClick={confirmRemovePhotos}>{compTexts.Album_deletePhotos}</button>
                         )}
                         {list.length > 0 && (
                             <button className={`select-btn${select ? ' active' : ''}`} onClick={hitSelect}>
                                 {!select ? <Icon type='select' className='btn-icon' /> : ''}
                                 <span>
-                                    {!select ? tempContent.Album_select : tempContent.Album_cancel}
+                                    {!select ? compTexts.Album_select : compTexts.Album_cancel}
                                 </span>
                             </button>
                         )}
@@ -685,8 +670,8 @@ const Album = ({ album_id, album, removeDeletedAlbum, goBack }) => {
                     {/* {loading ? <div className='spinner'><img src={spinner} className='spinner' /></div> : ''} */}
                     {loading ? <div className='spinner'><Spinner className='spinner' /></div> : ''}
 
-                    {endOfList ? <div className='album-end-of-list'><span>{tempContent.Album_endOfList}</span></div> : ''}
-                    {noPhotos ? <div className='album-no-photos'><span>{tempContent.Album_noPhotos}</span></div> : ''}
+                    {endOfList ? <div className='album-end-of-list'><span>{compTexts.Album_endOfList}</span></div> : ''}
+                    {noPhotos ? <div className='album-no-photos'><span>{compTexts.Album_noPhotos}</span></div> : ''}
 
 
 

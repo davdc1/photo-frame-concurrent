@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../Contexts/AuthContext'
 import { photoService } from '../../services/photoService'
 import { PopupContext } from '../../Contexts/PopupContext'
+import { TextContext } from '../../Contexts/TextContext'
 import Album from './Album'
 import AlbumList from './AlbumList'
 import Spinner from '../Spinner'
@@ -13,6 +14,7 @@ const Albums2 = () => {
 
     const { userInfo } = useContext(AuthContext)
     const { toggle } = useContext(PopupContext)
+    const { texts } = useContext(TextContext)
 
     const [loadingAlbums, setLoadingAlbums] = useState(false)
 
@@ -21,6 +23,8 @@ const Albums2 = () => {
 
     const location = useLocation()
     const navigate = useNavigate()
+
+    const compTexts = JSON.parse(texts['Albums'] || '{}')
 
     useEffect(() => {
         getAlbums()
@@ -87,13 +91,6 @@ const Albums2 = () => {
         }
     }
 
-    const tempTexts = {
-        Albums_newAlbum: 'New Album',
-        Albums_noAlbums: 'No albums yet'
-    }
-
-
-
     const tempScrolRef = useRef(null)
 
     useEffect(() => {
@@ -120,7 +117,7 @@ const Albums2 = () => {
                 <>
                     <div className='albums-controls'>
                         <button className='album-con-btn' onClick={toggleNewAlbum}>
-                            <Icon type='plus' className='btn-icon' />{tempTexts.Albums_newAlbum}
+                            <Icon type='plus' className='btn-icon' />{compTexts.Albums_newAlbum}
                         </button>
                     </div>
 

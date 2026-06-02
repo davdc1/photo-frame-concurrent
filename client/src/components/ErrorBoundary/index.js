@@ -1,7 +1,7 @@
 import React from "react";
 import './error-boundary.scss'
 
-const tempContent = {
+const tempTexts = {
     ErrorBoundary_title: 'Something went wrong',
     ErrorBoundary_message: 'An unexpected error occurred. Please try going back to the library.',
     ErrorBoundary_button: 'Back to Library'
@@ -30,12 +30,12 @@ class ErrorBoundary extends React.Component {
             return (
                 <div className="error-boundary">
                     <span className="error-boundary-icon">⚠</span>
-                    <h1 className="error-boundary-title">{tempContent.ErrorBoundary_title}</h1>
+                    <h1 className="error-boundary-title">{tempTexts.ErrorBoundary_title}</h1>
                     <p className="error-boundary-message">
-                        {tempContent.ErrorBoundary_message}
+                        {tempTexts.ErrorBoundary_message}
                     </p>
                     <button className="error-boundary-button" onClick={this.handleBack}>
-                        {tempContent.ErrorBoundary_button}
+                        {tempTexts.ErrorBoundary_button}
                     </button>
                 </div>
             )

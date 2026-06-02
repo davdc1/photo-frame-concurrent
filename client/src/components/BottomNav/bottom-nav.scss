@@ -10,7 +10,12 @@
 
     display: flex;
     align-items: center;
-    padding: 1vh 5vw 0 2vw;
+    // padding: 1vh 5vw 0 2vw;
+    padding-top: 1vh;
+    padding-inline-end: 5vw;
+    padding-inline-start: 2vw;
+    padding-bottom: 0;
+
     height: var(--bottom-nav-height);
 
     box-shadow: var(--shadow-1);

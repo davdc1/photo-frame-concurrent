@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../../Contexts/AuthContext'
 import { PopupContext } from '../../Contexts/PopupContext'
+import { TextContext } from '../../Contexts/TextContext'
 import { useNavigate } from 'react-router-dom'
 import { photoService } from '../../services/photoService'
 import { localStorageKeys } from '../../utils/consts'
@@ -15,6 +16,8 @@ const StartSlideShow = () => {
 
     const { userInfo } = useContext(AuthContext)
     const { toggle } = useContext(PopupContext)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['StartSlideShow'] || '{}')
 
     const [state, setState] = useState(NO_SESSION)
     const [loading, setLoading] = useState(true)
@@ -79,22 +82,11 @@ const StartSlideShow = () => {
         }
     }
 
-    const tempContent = {
-        StartSlideShow_Title: 'Start Slide Show',
-        StartSlideShow_Currently: 'Currently playing',
-        StartSlideShow_All: 'all photos',
-        StartSlideShow_Playlist: 'playlist',
-        StartSlideShow_PromptText: 'Would you like to:',
-        StartSlideShow_Resume: 'Resume',
-        StartSlideShow_PlayAll: 'Play all photos',
-        StartSlideShow_PlayPlaylist: 'Set a playlist',
-        StartSlideShow_Or: 'or'
-    }
 
     return (
         <div className='start-show-wrapper'>
 
-            <span className='start-show-title'>{tempContent.StartSlideShow_Title}</span>
+            <span className='start-show-title'>{compTexts.StartSlideShow_Title}</span>
 
             {loading ? (
                 <Spinner className='start-show-spinner' />
@@ -103,15 +95,15 @@ const StartSlideShow = () => {
                     {[PLAYING_ALBUM, PLAYING_ALL].includes(state) ?
                         <>
                             <span className='start-show-text-1'>
-                                {tempContent.StartSlideShow_Currently}
+                                {compTexts.StartSlideShow_Currently}
                             </span>
                             <span className='start-show-text-2'>
-                                {state === PLAYING_ALBUM ? tempContent.StartSlideShow_Playlist : tempContent.StartSlideShow_All}
+                                {state === PLAYING_ALBUM ? compTexts.StartSlideShow_Playlist : compTexts.StartSlideShow_All}
                             </span>
                         </> : ''}
 
                     <span className='start-show-prompt'>
-                        {tempContent.StartSlideShow_PromptText}
+                        {compTexts.StartSlideShow_PromptText}
                     </span>
                     <div className='start-show-buttons'>
                         {[PLAYING_ALBUM, PLAYING_ALL].includes(state) ?
@@ -121,9 +113,9 @@ const StartSlideShow = () => {
                                     onClick={navToFrame}
                                     className='start-show-button resume'
                                 >
-                                    {tempContent.StartSlideShow_Resume}
+                                    {compTexts.StartSlideShow_Resume}
                                 </button>
-                                <span className='start-show-or'>{tempContent.StartSlideShow_Or}</span>
+                                <span className='start-show-or'>{compTexts.StartSlideShow_Or}</span>
                             </div> : ''}
                         <div className='start-show-button-bottom'>
                             <button
@@ -131,14 +123,14 @@ const StartSlideShow = () => {
                                 onClick={navToFrame}
                                 className='start-show-button all_photos'
                             >
-                                {tempContent.StartSlideShow_PlayAll}
+                                {compTexts.StartSlideShow_PlayAll}
                             </button>
                             <button
                                 data-session={'playlist'}
                                 onClick={navToFrame}
                                 className='start-show-button playlist'
                             >
-                                {tempContent.StartSlideShow_PlayPlaylist}
+                                {compTexts.StartSlideShow_PlayPlaylist}
                             </button>
                         </div>
                     </div>

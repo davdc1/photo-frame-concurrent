@@ -46,7 +46,8 @@ export const localStorageKeys = {
     TRANSITION_TYPE: 'transitionType',
     INTERVAL_UNIT: 'intervalUnit',
     THEME: 'theme',
-    SESSION_ORDER: 'sessionOrder'
+    SESSION_ORDER: 'sessionOrder',
+    LANGUAGE: 'language'
 }
 
 export const playListDataKeys = {
@@ -54,4 +55,9 @@ export const playListDataKeys = {
     PLAY_NEXT_ALBUM: 'play_next_album',
     PLAYLIST: 'playlist',
     USER_ID: 'userId'
+}
+
+export const lngCodes = {
+    HEBREW: 'he',
+    ENGLISH: 'en'
 }

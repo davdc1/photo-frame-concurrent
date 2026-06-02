@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../../../Contexts/AuthContext'
 import { PopupContext } from '../../../Contexts/PopupContext'
+import { TextContext } from '../../../Contexts/TextContext'
 import Spinner from '../../Spinner'
 import { photoService } from '../../../services/photoService'
 import resizeImage from '../../../utils/resizeImage'
@@ -21,6 +22,8 @@ const UploadPopup = () => {
 
     const { userInfo } = useContext(AuthContext)
     const { payload, toggle } = useContext(PopupContext)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['UploadPopup'] || '{}')
 
     useEffect(() => {
         return () => {
@@ -178,11 +181,6 @@ const UploadPopup = () => {
             })
     }
 
-    const tempContent = {
-        upload_title: 'upload',
-        upload_uploadButton: 'upload $n file(s)',
-        upload_selectPhotos: 'browse'
-    }
 
     return (
         <div className='upload-wrapper'>
@@ -190,12 +188,12 @@ const UploadPopup = () => {
                 <button className='upload-close' onClick={() => toggle()}>{"+"}</button>
             </div>
             <span className='upload-title'>
-                {tempContent.upload_title}
+                {compTexts.UploadPopup_title}
             </span>
 
             <div className='upload-input-container'>
                 <label className='upload-input-label' htmlFor='upload-input' >
-                    <span>{tempContent.upload_selectPhotos}</span>
+                    <span>{compTexts.UploadPopup_selectPhotos}</span>
                     <input
                         type='file'
                         id='upload-input'
@@ -229,7 +227,7 @@ const UploadPopup = () => {
 
             <div className='upload-submit-container'>
                 <button className='upload-submit' disabled={!loaded.length || uploading || loading} onClick={getUrlsAndUpload}>
-                    {tempContent.upload_uploadButton.replace('$n', loaded.length)}
+                    {compTexts.UploadPopup_uploadButton.replace('$n', loaded.length)}
                 </button>
                 <div className='upload-submit-spinner-container'>
                     {uploading ? <Spinner className='upload-submit-spinner' /> : ''}

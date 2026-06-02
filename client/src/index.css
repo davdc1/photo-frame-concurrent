@@ -16,9 +16,16 @@
   --bottom-nav-height: max(9vh, 56px);
   --header-height: clamp(48px, 7vh, 72px);
 
+  /* REMOVE */
+  /* direction: rtl; */
+
   input {
     border: solid 1px;
   }
+}
+
+[data-lng="he"] {
+  direction: rtl;
 }
 
 [data-theme="dark"] {

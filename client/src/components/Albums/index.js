@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { AuthContext } from '../../Contexts/AuthContext'
 import { photoService } from '../../services/photoService'
 import { PopupContext } from '../../Contexts/PopupContext'
+import { TextContext } from '../../Contexts/TextContext'
 import Album from './Album'
 import AlbumList from './AlbumList'
 import './albums.scss'
@@ -11,6 +12,8 @@ const Albums = () => {
 
     const { userInfo } = useContext(AuthContext)
     const { toggle } = useContext(PopupContext)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['Albums'] || '{}')
 
     const [loadingAlbums, setLoadingAlbums] = useState(false)
     const [loadingAlbumPhotos, setLoadingAlbumPhotos] = useState(false)
@@ -58,12 +61,12 @@ const Albums = () => {
         setLoadingAlbums(true)
 
 
-        
-        
+
+
         photoService.getUserAlbums({ userId: userInfo.id })
-        
-        // !!!!!    REMOVE    !!!!!
-        // photoService.getUserAlbums({ userId: 3 })
+
+            // !!!!!    REMOVE    !!!!!
+            // photoService.getUserAlbums({ userId: 3 })
 
             .then((res) => {
                 setAlbums(res.data)
@@ -98,24 +101,21 @@ const Albums = () => {
         setSelectedAlbum(null)
     }
 
-    const tempTexts = {
-        Albums_newAlbum: 'new album'
-    }
 
 
-    return(
+    return (
         <div className='albums-wrapper'>
 
             <div className='albums-controls'>
                 <button className='album-con-btn' onClick={toggleNewAlbum}>
-                    {tempTexts.Albums_newAlbum}
+                    {compTexts.Albums_newAlbum}
                 </button>
             </div>
 
             {albums ?
                 <AlbumList clickHandler={onAlbumClick} albums={albums} selectedAlbum={selectedAlbum} /> : ''}
 
-            {selectedAlbum ? 
+            {selectedAlbum ?
                 <Album key={selectedAlbum} album_id={selectedAlbum} album={albums.find(({ id }) => id == selectedAlbum)} removeDeletedAlbum={removeDeletedAlbum} /> : ''}
 
         </div>

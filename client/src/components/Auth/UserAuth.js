@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../Contexts/AuthContext'
+import { TextContext } from '../../Contexts/TextContext'
 import Login2 from '../Login2/Login2'
 import Register from '../Register/Register'
 import './user-auth.scss'
@@ -10,6 +11,8 @@ const MODES = { LOGIN: 'LOGIN', REGISTER: 'REGISTER' }
 const UserAuth = () => {
 
     const { userInfo } = useContext(AuthContext)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['UserAuth'] || '{}')
     const [mode, setMode] = useState(MODES.LOGIN)
     const navigate = useNavigate()
 
@@ -27,10 +30,6 @@ const UserAuth = () => {
         }
     }
 
-    const tempTexts = {
-        UserAuth_haveAccount: 'Already have an account? Login.',
-        UserAuth_createAccount: 'Create an account'
-    }
 
     return (
         <div className={`user-auth-wrapper ${mode}`}>
@@ -40,8 +39,8 @@ const UserAuth = () => {
 
 
                 <button onClick={toggleMode} className='user-auth-toggle'>
-                    {mode === MODES.LOGIN ? tempTexts.UserAuth_createAccount : ''}
-                    {mode === MODES.REGISTER ? tempTexts.UserAuth_haveAccount : ''}
+                    {mode === MODES.LOGIN ? compTexts.UserAuth_createAccount : ''}
+                    {mode === MODES.REGISTER ? compTexts.UserAuth_haveAccount : ''}
                 </button>
 
             </div>

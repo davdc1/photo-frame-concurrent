@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { PopupContext } from '../../../Contexts/PopupContext'
+import { TextContext } from '../../../Contexts/TextContext'
 import { photoService } from '../../../services/photoService'
 import { localStorageKeys } from '../../../utils/consts'
 import './playlist-popup.scss'
@@ -8,6 +9,8 @@ import './playlist-popup.scss'
 const PlayListPopup = () => {
 
     const { toggle } = useContext(PopupContext)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['PlaylistPopup'] || '{}')
 
     const [albums, setAlbums] = useState([])
     const [listOpened, setListOpened] = useState(false)
@@ -77,21 +80,11 @@ const PlayListPopup = () => {
 
     }
 
-    const tempContent = {
-        PlaylistPopup_title: 'New Playlist',
-        PlaylistPopup_select: 'select album',
-        PlaylistPopup_add: 'add',
-        PlaylistPopup_albumEmpty: 'album is empty',
-        PlaylistPopup_empty: 'PlayList is empty. Add albums to start',
-        PlaylistPopup_noAlbumsLine1: 'No albums found.',
-        PlaylistPopup_noAlbumsLine2: 'Create one to start',
-        PlaylistPopup_confirm: 'Save playlist'
-    }
 
     return (
         <div className='playlist-popup-wrapper'>
             <span className='playlist-popup-title'>
-                {tempContent.PlaylistPopup_title}
+                {compTexts.PlaylistPopup_title}
             </span>
 
             <div className='playlist-popup-list'>
@@ -103,25 +96,25 @@ const PlayListPopup = () => {
                     </div>
                 ))}
 
-                {selected.length === 0 ? <p className='playlist-popup-list-empty'>{tempContent.PlaylistPopup_empty}</p> : ''}
+                {selected.length === 0 ? <p className='playlist-popup-list-empty'>{compTexts.PlaylistPopup_empty}</p> : ''}
             </div>
 
             <div className='playlist-popup-select'>
                 <div className='playlist-popup-select-top' onClick={toggleSelect}>
                     {/* <span>
-                        {albums.length === 0 ? tempContent.PlaylistPopup_noAlbumsLine1 : tempContent.PlaylistPopup_select}
+                        {albums.length === 0 ? compTexts.PlaylistPopup_noAlbumsLine1 : compTexts.PlaylistPopup_select}
                     </span> */}
 
 
                     {albums.length === 0 ?
                         <div className='playlist-popup-no-albums'>
                             <span>
-                                {tempContent.PlaylistPopup_noAlbumsLine1}
+                                {compTexts.PlaylistPopup_noAlbumsLine1}
                             </span>
 
-                            <NavLink className="" to="/auth/albums" state={{ openCreateAlbum: true }}>{tempContent.PlaylistPopup_noAlbumsLine2}</NavLink>
+                            <NavLink className="" to="/auth/albums" state={{ openCreateAlbum: true }}>{compTexts.PlaylistPopup_noAlbumsLine2}</NavLink>
                         </div> :
-                        <span>{tempContent.PlaylistPopup_select}</span>}
+                        <span>{compTexts.PlaylistPopup_select}</span>}
 
 
 
@@ -133,8 +126,8 @@ const PlayListPopup = () => {
                             <div className='playlist-popup-select-item' key={idx.toString()}>
                                 <span>{album.name}</span>
                                 {album.has_photos ?
-                                    <span className='playlist-popup-select-add-btn' onClick={() => addToPlaylist(album)}>{tempContent.PlaylistPopup_add}</span> :
-                                    <span>{tempContent.PlaylistPopup_albumEmpty}</span>
+                                    <span className='playlist-popup-select-add-btn' onClick={() => addToPlaylist(album)}>{compTexts.PlaylistPopup_add}</span> :
+                                    <span>{compTexts.PlaylistPopup_albumEmpty}</span>
                                 }
                             </div>
                         )
@@ -142,7 +135,7 @@ const PlayListPopup = () => {
                 </div>
             </div>
 
-            <button onClick={confirm}>{tempContent.PlaylistPopup_confirm}</button>
+            <button onClick={confirm}>{compTexts.PlaylistPopup_confirm}</button>
         </div>
     )
 }

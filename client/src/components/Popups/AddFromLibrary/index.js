@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "../../../Contexts/AuthContext"
 import { PopupContext } from '../../../Contexts/PopupContext'
+import { TextContext } from '../../../Contexts/TextContext'
 import Spinner from '../../Spinner'
 import ThumbnailSelect from '../../ThumbnailSelect'
 import { photoService } from "../../../services/photoService"
@@ -17,6 +18,8 @@ const AddFromLibrary = () => {
 
     const { userInfo } = useContext(AuthContext)
     const { toggle } = useContext(PopupContext)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['AddFromLibrary'] || '{}')
 
     const [list, setList] = useState() // [] ??
     const [listLoading, setListLoading] = useState(false)
@@ -59,9 +62,6 @@ const AddFromLibrary = () => {
         photoService.addPhotosToAlbum()
     }
 
-    const tempTexts = {
-        AddFL_submit: 'Add'
-    }
 
     return (
         <div className="add-fl-wrapper">
@@ -82,7 +82,7 @@ const AddFromLibrary = () => {
 
 
             </div>
-            <button className="add-fl-submit">{tempTexts.AddFL_submit}</button>
+            <button className="add-fl-submit">{compTexts.AddFromLibrary_submit}</button>
         </div>
     )
 }

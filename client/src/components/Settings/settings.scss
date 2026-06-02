@@ -11,7 +11,7 @@
 
 .settings-box {
     width: 520px;
-    margin: 12% auto 0;
+    margin: 8% auto 0;
     padding: 32px;
     background: var(--bg-color-2);
     border-radius: 14px;
@@ -28,7 +28,8 @@
 
     .slide-show-interval,
     .transition-type,
-    .session-order {
+    .session-order,
+    .apps-language {
         margin-bottom: 24px;
 
         // label {
@@ -78,22 +79,33 @@
             grid-template-columns: 20% 79%;
 
             .select-wrapper {
-                z-index: 3;
+                z-index: 4;
             }
         }
     }
 
     .transition-type {
         .select-wrapper {
-            z-index: 2;
+            z-index: 3;
         }
     }
 
     .session-order {
         .select-wrapper {
-            z-index: 1;
+            z-index: 2;
         }
     }
+
+    .apps-language {
+        .select-wrapper {
+            z-index: 1;
+        }
+
+        .language-spinner {
+            margin-bottom: -10%;
+        }
+    }
+
 
     .save-button {
         display: block;

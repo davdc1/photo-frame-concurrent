@@ -1,12 +1,13 @@
 import { useContext, useEffect, useRef, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { AuthContext } from '../../Contexts/AuthContext'
 import { PopupContext } from '../../Contexts/PopupContext'
+import { TextContext } from '../../Contexts/TextContext'
 import Icon from '../Icon'
 import SideNavLink from './SideNavLink'
 // import { TextContext } from '../../Contexts/TextContext'
 import './nav2.scss'
-import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 
 const NAV_OVERLAY_ID = 'navOverlayId'
 
@@ -15,6 +16,8 @@ const SideNav = ({ links, componentClass }) => {
     const { userInfo, logout } = useContext(AuthContext)
     const { toggle } = useContext(PopupContext)
     // const { texts } = useContext(TextContext)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['Nav'] || '{}')
     const [opened, setOpened] = useState(false)
     const [showOverlay, setShowOverlay] = useState(false)
     const [visible, setVisible] = useState(true)
@@ -96,9 +99,9 @@ const SideNav = ({ links, componentClass }) => {
         }
 
         const payload = {
-            title: tempTexts.Nav_confimLogout,
-            okText: tempTexts.Nav_logoutOk,
-            cancelText: tempTexts.Nav_logoutCancel,
+            title: compTexts.Nav_confimLogout,
+            okText: compTexts.Nav_logoutOk,
+            cancelText: compTexts.Nav_logoutCancel,
             okCallback: logoutCb,
             cancelCallBack: toggle
         }
@@ -106,12 +109,6 @@ const SideNav = ({ links, componentClass }) => {
         toggle({ popupType: 'Confirm', payload })
     }
 
-    const tempTexts = {
-        Nav_logout: 'Logout',
-        Nav_confimLogout: 'Logout?',
-        Nav_logoutOk: 'Yes',
-        Nav_logoutCancel: 'No'
-    }
 
     return (
 
@@ -127,19 +124,14 @@ const SideNav = ({ links, componentClass }) => {
 
                 <div className={`side-nav-list ${opened ? 'opened' : 'closed'}`}>
                     <button onClick={toggleNav} className='side-nav-close'>+</button>
-                    {links(/*texts*/).map(({ text, heb_text, path, admin, iconType }, idx) => {
+                    {links(compTexts).map(({ text, defaultText, path, admin, iconType }, idx) => {
 
                         if (admin && userInfo.role !== 'ADMIN') return ''
 
-                        return (
-                            // <div onClick={toggleNav} className='side-nav-link' key={text + idx}>
-                            //     <NavLink className='nav-link' to={path}>
-                            //         <Icon type={iconType} className='side-nav-icon' />
-                            //         <span>{heb_text || text}</span>
-                            //     </NavLink>
-                            // </div>
+                        const showText = text || defaultText
 
-                            <SideNavLink text={text} heb_text={heb_text} path={path} toggleNav={toggleNav} iconType={iconType} key={text + idx} />
+                        return (
+                            <SideNavLink text={showText} path={path} toggleNav={toggleNav} iconType={iconType} key={showText + idx} />
                         )
                     }
                     )}
@@ -147,7 +139,7 @@ const SideNav = ({ links, componentClass }) => {
                     {userInfo.id ?
                         <div onClick={confirmLogout} className='side-nav-link logout' ref={ref}>
                             <Icon type={'logout'} className='side-nav-icon' />
-                            <span>{tempTexts.Nav_logout}</span>
+                            <span>{compTexts.Nav_logout}</span>
                         </div> : ''}
                 </div>
             </div>

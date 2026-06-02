@@ -30,7 +30,7 @@
             letter-spacing: 0.3px;
             transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-
+            direction: ltr;
 
             &:hover {
                 transform: translateY(-1px);
@@ -45,7 +45,7 @@
             }
 
             .btn-icon {
-                margin-right: clamp(4px, 1vw, 10px);
+                margin-inline-end: clamp(4px, 1vw, 10px);
                 width: clamp(24px, 2vw, 32px);
             }
         }

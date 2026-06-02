@@ -108,18 +108,23 @@
         }
 
         .side-nav-close {
-            align-self: flex-end;
+            // align-self: flex-end;
             background: none;
             border: none;
             outline: none;
             font-size: 32px;
             padding: 4px 14px;
-            margin: 0 4px 4px 0;
+            // margin: 0 4px 4px 0;
+            margin-inline-end: 4px;
+            margin-bottom: 4px;
             cursor: pointer;
             color: #888;
             rotate: 45deg;
             border-radius: 8px;
             transition: color 0.2s, background-color 0.2s;
+
+            position: relative;
+            right: -40%;
 
             &:hover {
                 color: #333;
@@ -142,7 +147,7 @@
                 .side-nav-icon {
                     width: clamp(18px, 1.5vw, 28px);
                     height: clamp(18px, 1.5vw, 28px);
-                    margin-right: clamp(8px, 0.8vw, 14px);
+                    margin-inline-end: clamp(8px, 0.8vw, 14px);
                     filter: grayscale(0.3);
                     opacity: 0.7;
                 }
@@ -185,7 +190,7 @@
                 .side-nav-icon {
                     width: clamp(18px, 1.5vw, 28px);
                     height: clamp(18px, 1.5vw, 28px);
-                    margin-right: clamp(8px, 0.8vw, 14px);
+                    margin-inline-end: clamp(8px, 0.8vw, 14px);
                 }
 
                 &:hover {

@@ -2,6 +2,7 @@ import { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { AuthContext } from '../../Contexts/AuthContext'
+import { TextContext } from '../../Contexts/TextContext'
 import useTogglePassword from '../../Hooks/toggleShowPassword'
 import { authService } from '../../services/authService'
 import InputField from '../InputField'
@@ -11,6 +12,8 @@ import './register.scss'
 const Register = () => {
 
     const { signUser } = useContext(AuthContext)
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['Register'] || '{}')
     const [inputs, setInputs] = useState({ first_name: '', last_name: '', email: '', password: '' })
     const [valid, setValid] = useState({ first_name: false, last_name: false, email: false, password: false })
     const [errors, setErrors] = useState({ EMAIL_EXISTS: false })
@@ -83,31 +86,20 @@ const Register = () => {
 
     const allValid = Object.values(valid).filter((bool) => !bool).length === 0
 
-    const content = {
-        Register_title: 'Register',
-        Register_submit: 'Submit',
-        Register_loading: 'loading...',
-        Register_firstName: 'First name',
-        Register_lastName: 'Last name',
-        Register_email: 'Email',
-        Register_password: 'Password',
-        Register_emailExists: 'Email address already exists',
-
-    }
     return (
         <div className='register-wrapper'>
-            <span className='register-title'>{content.Register_title}</span>
+            <span className='register-title'>{compTexts.Register_title}</span>
             <div className='register-fields'>
-                <InputField label={content.Register_firstName}>
+                <InputField label={compTexts.Register_firstName}>
                     <input id={'register-first_name'} value={inputs.first_name} onChange={handleInputs} ref={firstNameFocus.ref} />
                 </InputField>
-                <InputField label={content.Register_lastName}>
+                <InputField label={compTexts.Register_lastName}>
                     <input id={'register-last_name'} value={inputs.last_name} onChange={handleInputs} ref={lastNameFocus.ref} />
                 </InputField>
-                <InputField label={content.Register_email}>
+                <InputField label={compTexts.Register_email}>
                     <input id='register-email' type='email' value={inputs.email} onChange={handleInputs} ref={emailFocus.ref} />
                 </InputField>
-                <InputField label={content.Register_password} type={passwordMode} togglePassword={togglePasswordMode}>
+                <InputField label={compTexts.Register_password} type={passwordMode} togglePassword={togglePasswordMode}>
                     <input id={'register-password'} type={passwordMode} value={inputs.password} onChange={handleInputs} ref={passwordFocus.ref} />
                 </InputField>
             </div>
@@ -115,7 +107,7 @@ const Register = () => {
 
             <div className='register-bottom'>
                 <div className='register-error-container'>
-                    {errors.EMAIL_EXISTS ? <span>{content.Register_emailExists}</span> : ''}
+                    {errors.EMAIL_EXISTS ? <span>{compTexts.Register_emailExists}</span> : ''}
                 </div>
 
                 <div className="register-send-container">
@@ -126,7 +118,7 @@ const Register = () => {
                         className='register-send'
                         ref={submitFocus.ref}
                     >
-                        {content.Register_submit}
+                        {compTexts.Register_submit}
                     </button>
                     {loading ? <Spinner className='spinner' /> : ''}
                 </div>
