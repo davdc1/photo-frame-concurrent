@@ -30,18 +30,11 @@ const UserAuth = () => {
         }
     }
 
-    const tempTexts = {
-        "UserAuth_haveAccount": "Already have an account? Login.",
-        "UserAuth_createAccount": "Create an account",
-    }
-
-
     return (
         <div className={`user-auth-wrapper ${mode}`}>
             <div className='user-auth-box'>
                 {mode === MODES.LOGIN ? <Login2 /> : ''}
                 {mode === MODES.REGISTER ? <Register /> : ''}
-
 
                 <button onClick={toggleMode} className='user-auth-toggle'>
                     {mode === MODES.LOGIN ? compTexts.UserAuth_createAccount : ''}
