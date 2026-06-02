@@ -12,8 +12,9 @@
     align-items: center;
     // padding: 1vh 5vw 0 2vw;
     padding-top: 1vh;
-    padding-inline-end: 5vw;
-    padding-inline-start: 2vw;
+    // padding-inline-end: 5vw;
+    // padding-inline-start: 2vw;
+    padding-inline: 5vw;
     padding-bottom: 0;
 
     height: var(--bottom-nav-height);
@@ -29,6 +30,8 @@
         justify-content: space-between;
         align-items: center;
         width: 100%;
+
+        padding-inline-start: 0; // overide ul default padding.
 
         .bottom-nav-link {
 
