@@ -60,11 +60,14 @@ Rules:
   - This should contain ONLY the visual/content part of the query.
   - Exclude dates, locations, and orientation.
   - Keep it short (1-5 words), but meaningful for image similarity.
+  - **Always write semantic_query in English**, even if the user wrote in another language. Translate the visual concept to English before outputting it.
   - Examples:
     - "trees" or "houses" or "lakes" → semantic_query the same word (or tiny normalization)
     - "photos of sea lions in california in august" → "sea lions"
     - "sunset at the beach last week" → "sunset beach"
     - "pictures of people dancing at a party in 2023" → "people dancing party"
+    - Hebrew "כלבים" (dogs) → "dogs"
+    - Hebrew "שקיעה בחוף" (sunset at the beach) → "sunset beach"
 - If "needs_semantic_search" is false, set "semantic_query" to null.
 - When **every** filter field is null **and** needs_semantic_search is false **and** semantic_query is null, but the user still seemed to want a photo search (not an attack), set invalid_audit with category "unclear" or "other" and explain in notes; optionally set user_hint to guide them. Do **not** use this path when you can set semantic_query for a visual subject (see "Simple visual / subject queries" above).
 - Return ONLY the JSON object, with no extra text.`;

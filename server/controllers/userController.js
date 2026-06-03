@@ -9,7 +9,7 @@ const { emailTransporter } = require('../services/emailer');
 // const TEMP_SECRET_KEY = 'TEMP_SECRET_KEY'
 
 const generateJwtToken = (userPayload) => {
-    return jwt.sign({ ...userPayload }, process.env.SECRET_KEY, { expiresIn: '20s' }) // TODO: change to 10m
+    return jwt.sign({ ...userPayload }, process.env.SECRET_KEY, { expiresIn: '10m' })
 }
 
 const generateRefreshToken = (sessionId) => {

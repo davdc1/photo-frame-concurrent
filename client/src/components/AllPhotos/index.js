@@ -286,7 +286,7 @@ const AllPhotos = () => {
                         </>
                     ) : (
                         <>
-                            <button className='upload-btn' onClick={uploadPopup} ref={addButtonFocus.ref}>
+                            <button className='upload-btn' disabled={Object.values(selected).find((v) => v === true) || actionLoading} onClick={uploadPopup} ref={addButtonFocus.ref}>
                                 <Icon type='plus' className='btn-icon' />
                                 <span>{compTexts.AllPhotos_add}</span>
                             </button>
@@ -305,7 +305,10 @@ const AllPhotos = () => {
                             {Object.values(selected).find((v) => v === true) && (
                                 <>
 
-                                    <button className='delete-btn' onClick={confirmDeletePhotos} ref={deleteButtonFocus.ref}>{compTexts.AllPhotos_delete}</button>
+                                    <button className='delete-btn' onClick={confirmDeletePhotos} ref={deleteButtonFocus.ref}>
+                                        <Icon type='trash' className='btn-icon' />
+                                        <span>{compTexts.AllPhotos_delete}</span>
+                                    </button>
 
                                     {userAlbums.albums.length > 0 && (
                                         <button className='add-to-album-btn' onClick={toggleAddToAlbum} ref={addToAlbumButtonFocus.ref}>{compTexts.AllPhotos_addToAlbum}</button>

@@ -49,6 +49,17 @@
                 background: none;
                 border: solid 2px var(--btn-color-2);
                 color: var(--text-color);
+
+                @media (max-width: 600px) {
+                    .btn-icon {
+                        margin-inline-end: 0;
+                    }
+
+                    span {
+                        display: none;
+                    }
+                }
+
             }
 
             .add-to-album-btn {

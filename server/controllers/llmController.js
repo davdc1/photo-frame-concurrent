@@ -5,7 +5,7 @@ const llmService = require('../services/llmService')
 const geoService = require('../services/geoService')
 const { getTextEmbedding } = require('../services/embeddingService')
 const pineconeIndex = require('../services/pineconeService')
-const { systemPrompt: filterPhotosPrompt, format } = require('../prompts/filterPhotos')
+const { systemPrompt: filterPhotosPrompt, format } = require('../prompts/filterPhotos2')
 const { isValidDatetime, sanitizeString } = require('../utils/validation')
 
 function sanitizeUserHint(str) {
@@ -109,6 +109,8 @@ const filterPhotos = async ({ text, req }) => {
             return { response, photos: [] }
         }
 
+        console.log('[Smart Album] SQL photos count:', photos.length, '| user_id:', req.user.id, typeof req.user.id)
+
         // Semantic search — intersect SQL results with Pinecone ranked IDs
         if (response.filters.needs_semantic_search) {
             try {
@@ -127,10 +129,13 @@ const filterPhotos = async ({ text, req }) => {
 
                 let pineconeResult
                 try {
+                    const pineconeFilter = { user_id: req.user.id }
+                    const pineconeTopK = Math.min(photos.length, TOP_K)
+                    console.log('[Smart Album] Pinecone query filter:', JSON.stringify(pineconeFilter), '| topK:', pineconeTopK)
                     pineconeResult = await pineconeIndex.query({
                         vector: embedding,
-                        topK: Math.min(photos.length, TOP_K),
-                        filter: { user_id: req.user.id },
+                        topK: pineconeTopK,
+                        filter: pineconeFilter,
                         includeMetadata: true
                     })
                     console.log('[Smart Album] Pinecone returned', pineconeResult.matches?.length, 'matches')

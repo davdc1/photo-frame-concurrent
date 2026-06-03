@@ -29,6 +29,12 @@ def store_embedding(photo_id, user_id, embedding):
 
     index = _get_index()
 
+    # Cast to int — Pinecone metadata filters are strict type-matching.
+    # The SQS message delivers these as strings (JSON), but the Node.js
+    # query filters with integers (req.user.id). A mismatch returns 0 matches.
+    photo_id = int(photo_id)
+    user_id = int(user_id)
+
     index.upsert(
         vectors=[
             {

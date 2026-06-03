@@ -25,9 +25,16 @@ yarn-error.log*
 
 embedding-worker/venv
 
+# Python cache (auto-generated, never commit)
+__pycache__/
+*.pyc
+*.pyo
+
 .env
 server/.env
 client/.env
+
+server/scripts/reindex-user-photos.js
 
 TODO.md
 READMEOLD.md

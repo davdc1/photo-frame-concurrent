@@ -1,15 +1,18 @@
-import { useEffect, useState, useRef } from 'react'
+import { useContext, useEffect, useState, useRef } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
+import { TextContext } from '../../Contexts/TextContext'
 import Icon from '../Icon'
 import './bottom-nav.scss'
 
 const BottomNav = ({ links }) => {
 
+    const { texts } = useContext(TextContext)
+    const compTexts = JSON.parse(texts['Nav'] || '{}')
     const [show, setShow] = useState(false)
     const visibleTimer = useRef(null)
     const location = useLocation()
 
-    const bottomNavLinks = links().filter(link => link.bottomNav)
+    const bottomNavLinks = links(compTexts).filter(link => link.bottomNav)
 
     useEffect(() => {
 
@@ -43,11 +46,11 @@ const BottomNav = ({ links }) => {
     return show ? (
         <div className="bottom-nav-wrapper">
             <ul className="bottom-nav-list">
-                {bottomNavLinks.map(({ text, heb_text, path, iconType }, idx) => (
-                    <div className='bottom-nav-link' key={text + idx}>
+                {bottomNavLinks.map(({ text, defaultText, path, iconType }, idx) => (
+                    <div className='bottom-nav-link' key={defaultText + idx}>
                         <NavLink to={path} className='nav-link'>
                             <Icon type={iconType} className='bottom-nav-icon' />
-                            <span className=''>{heb_text || text}</span>
+                            <span className=''>{text || defaultText}</span>
                         </NavLink>
 
                     </div>

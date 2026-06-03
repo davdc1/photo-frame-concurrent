@@ -33,6 +33,8 @@ import logoutLight from '../../images/svgs/logout-light.svg'
 import logoutDark from '../../images/svgs/logout-dark.svg'
 import chooseLight from '../../images/svgs/choose-light.svg'
 import chooseDark from '../../images/svgs/choose-dark.svg'
+import trashLight from '../../images/svgs/trash-light.svg'
+import trashDark from '../../images/svgs/trash-dark.svg'
 
 const icons = {
     'photos': { light: photosLight, dark: photosDark },
@@ -53,7 +55,8 @@ const icons = {
     'select': { light: selectLight, dark: selectDark },
     'check': { light: checkLight, dark: checkDark },
     'logout': { light: logoutLight, dark: logoutDark },
-    'choose': { light: chooseLight, dark: chooseDark }
+    'choose': { light: chooseLight, dark: chooseDark },
+    'trash': { light: trashLight, dark: trashDark }
 }
 
 const Icon = ({ type, className = '' }) => {
