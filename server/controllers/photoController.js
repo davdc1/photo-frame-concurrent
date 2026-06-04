@@ -10,6 +10,7 @@ const Album = require('../models/Album');
 const User = require('../models/User');
 
 const AWS = require('aws-sdk');
+const index = require('../services/pineconeService');
 // AWS.config.update({
 //     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
 //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -501,7 +502,15 @@ const deletePhotos = async ({ req, res }) => {
             .andWhere('user_id', req.user.id)
             .delete()
 
-        console.log('deletedPhotos', deletedPhotos);
+        try {
+
+            const vectorIds = ids.map(id => `photo_${id}`)
+
+            console.log('delete ids', vectorIds);
+            await index.deleteMany({ ids: vectorIds })
+        } catch (error) {
+            console.log('error while deleting vectors', error);
+        }
 
         res.status(200).send('ok')
 

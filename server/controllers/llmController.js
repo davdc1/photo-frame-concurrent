@@ -129,7 +129,7 @@ const filterPhotos = async ({ text, req }) => {
 
                 let pineconeResult
                 try {
-                    const pineconeFilter = { user_id: req.user.id }
+                    const pineconeFilter = { user_id: req.user.id } // TODO: also filter by ids returned from sql?
                     const pineconeTopK = Math.min(photos.length, TOP_K)
                     console.log('[Smart Album] Pinecone query filter:', JSON.stringify(pineconeFilter), '| topK:', pineconeTopK)
                     pineconeResult = await pineconeIndex.query({
@@ -147,6 +147,9 @@ const filterPhotos = async ({ text, req }) => {
                 const scoreMap = new Map(
                     pineconeResult.matches.map(m => [m.metadata.photo_id, m.score])
                 )
+
+                console.log('[Smart Album] Score map:', scoreMap);
+
 
                 const maxScore = pineconeResult.matches[0]?.score || 0
 
