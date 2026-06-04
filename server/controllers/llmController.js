@@ -5,7 +5,7 @@ const llmService = require('../services/llmService')
 const geoService = require('../services/geoService')
 const { getTextEmbedding } = require('../services/embeddingService')
 const pineconeIndex = require('../services/pineconeService')
-const { systemPrompt: filterPhotosPrompt, format } = require('../prompts/filterPhotos2')
+const { systemPrompt: filterPhotosPrompt, format } = require('../prompts/filterPhotos3')
 const { isValidDatetime, sanitizeString } = require('../utils/validation')
 
 function sanitizeUserHint(str) {
@@ -52,6 +52,8 @@ const filterPhotos = async ({ text, req }) => {
         if (response && typeof response === 'object') {
             delete response.invalid_audit
         }
+
+        console.log('[Smart Album] Response from LLM', response)
 
         let locationBox
 

@@ -310,10 +310,6 @@ const logoutOG = async ({ req, res }) => {
 
 const refreshAuth = async ({ req, res }) => {
 
-
-
-    console.log('REFRESH AUTH!!!');
-
     try {
         const refreshToken = req.cookies.refreshToken
         const [sessionId] = refreshToken.split('.')
