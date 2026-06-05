@@ -6,8 +6,6 @@ const argon2 = require('argon2')
 const crypto = require('crypto');
 const { emailTransporter } = require('../services/emailer');
 
-// const TEMP_SECRET_KEY = 'TEMP_SECRET_KEY'
-
 const generateJwtToken = (userPayload) => {
     return jwt.sign({ ...userPayload }, process.env.SECRET_KEY, { expiresIn: '10m' })
 }
@@ -28,6 +26,10 @@ const hashToken = (token) => {
 }
 
 const sendVerificationEmail = async ({ email, emailVerificationRawToken }) => {
+
+    // email verification doesn't work without own domain.
+    return
+
     await emailTransporter.sendMail({
         // from: '"frame-app" <noreply@photo-frame-app.com>',
         from: 'onboarding@resend.dev',
@@ -41,11 +43,12 @@ const register = async ({ req, res }) => {
     try {
 
         const {
-            first_name,
-            last_name,
+            name,
             email,
-            // phone,
             password
+            // first_name,
+            // last_name,
+            // phone,
         } = req.body
 
         let emailExists = await User.query()
@@ -65,13 +68,14 @@ const register = async ({ req, res }) => {
         const hash = await argon2.hash(password, { type: argon2.argon2id })
 
         let user = await User.query().insert({
-            first_name,
-            last_name,
+            name,
             email,
-            // phone,
             password: hash,
             verification_token_hash,
             verification_token_expires
+            // first_name,
+            // last_name,
+            // phone,
         })
 
         let { response, userPayload, accessToken } = await signUser({ user, res })
@@ -188,8 +192,10 @@ const signUser = async ({ user, req, res }) => {
 
     // new version, auth_sessions table
 
-    const { id, first_name, last_name, email, phone } = user
-    const userPayload = { id, first_name, last_name, email, phone }
+    // const { id, first_name, last_name, email, phone } = user
+    // const userPayload = { id, first_name, last_name, email, phone }
+    const { id, name, email } = user
+    const userPayload = { id, name, email }
     const sessionId = crypto.randomUUID()
     const refreshToken = generateRefreshToken(sessionId)
     const refresh_token_hash = hashToken(refreshToken)
@@ -202,7 +208,7 @@ const signUser = async ({ user, req, res }) => {
             user_id: user.id,
             refresh_token_hash,
             expires_at,
-            user_agent: req.headers['user-agent']
+            user_agent: req?.headers?.['user-agent']
         });
         console.log('newAuthSession: ', newAuthSession);
     } catch (error) {
@@ -325,10 +331,11 @@ const refreshAuth = async ({ req, res }) => {
 
         const userPayload = {
             id: user.id,
-            first_name: user.first_name,
-            last_name: user.last_name,
+            name: user.name,
             email: user.email,
-            phone: user.phone
+            // first_name: user.first_name,
+            // last_name: user.last_name,
+            // phone: user.phone
         }
         const accessToken = generateJwtToken(userPayload)
 
@@ -360,7 +367,6 @@ const refreshAuth = async ({ req, res }) => {
 }
 
 const refreshAuthOG = async ({ req, res }) => {
-    console.log('######################   REFRESH AUTH   #####################');
 
     try {
 

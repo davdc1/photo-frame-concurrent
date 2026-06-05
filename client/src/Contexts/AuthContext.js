@@ -7,14 +7,15 @@ import { localStorageKeys } from "../utils/consts";
 export const AuthContext = createContext({
     userInfo: {
         id: '',
-        firstName: '',
-        lastName: '',
+        name: '',
         email: '',
-        phone: '',
         accessToken: ''
+        // firstName: '',
+        // lastName: '',
+        // phone: '',
     },
-    setUserInfo: () => {}
- })
+    setUserInfo: () => { }
+})
 
 
 export const AuthContextProvider = ({ children }) => {
@@ -25,11 +26,12 @@ export const AuthContextProvider = ({ children }) => {
         else return (
             {
                 id: '',
-                firstName: '',
-                lastName: '',
+                name: '',
                 email: '',
-                phone: '',
                 accessToken: ''
+                // firstName: '',
+                // lastName: '',
+                // phone: '',
             }
         )
     })
@@ -47,12 +49,12 @@ export const AuthContextProvider = ({ children }) => {
     const login = async ({ email, password }) => {
 
         return authService.login({ email, password })
-        .then((res) => {
-            signUser(res)
-        })
-        .catch((error) => {
-            console.log('login error11111', error);
-        })
+            .then((res) => {
+                signUser(res)
+            })
+            .catch((error) => {
+                console.log('login error', error);
+            })
     }
 
     const signUser = (res) => {
@@ -69,37 +71,34 @@ export const AuthContextProvider = ({ children }) => {
                 play_next_album: '',
                 playlist: {}
             }
-        
+
             localStorage.setItem(localStorageKeys.PLAY_LIST_DATA, JSON.stringify(obj))
         }
     }
 
     const logout = async () => {
-        console.log('logout');
 
         // api logout (revoke token)
-        
+
         try {
             authService.logout()
         } catch (error) {
-            
+
         }
-        
+
         localStorage.setItem(localStorageKeys.FRAME_APP_STORE, '{}')
         setUserInfo({})
 
-        navigate('/user-auth')        
-        
-        
+        navigate('/user-auth')
+
+
     }
 
     const value = {
         userInfo,
-        // setUserInfo,
         signUser,
         login,
         logout,
-        // refreshAccessToken
     }
 
     return (
@@ -107,4 +106,4 @@ export const AuthContextProvider = ({ children }) => {
             {children}
         </AuthContext.Provider>
     )
- }
+}

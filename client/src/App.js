@@ -19,10 +19,6 @@ function App() {
   const { logout } = useContext(AuthContext)
   const { texts } = useContext(TextContext)
 
-
-  console.log('texts AT APP', texts);
-
-
   useEffect(() => {
 
     window.addEventListener('auth-unauthorized', logout)

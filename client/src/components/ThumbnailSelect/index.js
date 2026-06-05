@@ -13,7 +13,7 @@ const ThumbnailSelect = ({ params: { item, onSelectItem, selected, disable, inAl
     const { toggle } = useContext(PopupContext)
 
     const thumbnailFocus = useFocusable()
-    const checkFocus = useFocusable()
+    // const checkFocus = useFocusable()
 
     const prevPopup = () => {
         toggle({ popupType: 'PhotoPrev', payload: { id: item.id } })
@@ -47,7 +47,7 @@ const ThumbnailSelect = ({ params: { item, onSelectItem, selected, disable, inAl
                     <button className='thumbnail-open' onClick={prevPopup}>
                         <img src={expandIcon} />
                     </button>
-                    <div ref={checkFocus.ref} className={`thumbnail-select-check ${selected[item.id] || (inAlbum && selected[item.album_photo_id]) ? 'selected' : ''}`}>
+                    <div className={`thumbnail-select-check ${selected[item.id] || (inAlbum && selected[item.album_photo_id]) ? 'selected' : ''}`}>
                         <Icon type='check' className='check-icon' />
                     </div>
                 </> : ''}

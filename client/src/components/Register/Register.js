@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { AuthContext } from '../../Contexts/AuthContext'
 import { TextContext } from '../../Contexts/TextContext'
-import useTogglePassword from '../../Hooks/toggleShowPassword'
 import { authService } from '../../services/authService'
+import useTogglePassword from '../../Hooks/toggleShowPassword'
 import InputField from '../InputField'
 import Spinner from '../Spinner'
 import './register.scss'
@@ -14,15 +14,18 @@ const Register = () => {
     const { signUser } = useContext(AuthContext)
     const { texts } = useContext(TextContext)
     const compTexts = JSON.parse(texts['Register'] || '{}')
-    const [inputs, setInputs] = useState({ first_name: '', last_name: '', email: '', password: '' })
-    const [valid, setValid] = useState({ first_name: false, last_name: false, email: false, password: false })
+    // const [inputs, setInputs] = useState({ first_name: '', last_name: '', email: '', password: '' })
+    // const [valid, setValid] = useState({ first_name: false, last_name: false, email: false, password: false })
+    const [inputs, setInputs] = useState({ name: '', email: '', password: '' })
+    const [valid, setValid] = useState({ name: false, email: false, password: false })
     const [errors, setErrors] = useState({ EMAIL_EXISTS: false })
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
     const [passwordMode, togglePasswordMode] = useTogglePassword()
 
-    const firstNameFocus = useFocusable()
-    const lastNameFocus = useFocusable()
+    // const firstNameFocus = useFocusable()
+    // const lastNameFocus = useFocusable()
+    const nameFocus = useFocusable()
     const emailFocus = useFocusable()
     const passwordFocus = useFocusable()
     const submitFocus = useFocusable()
@@ -40,7 +43,8 @@ const Register = () => {
         let test
         if (field === 'email') {
             test = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(value)
-        } else if (['first_name', 'last_name'].includes(field)) {
+            // } else if (['first_name', 'last_name'].includes(field)) {
+        } else if (field === 'name') {
             test = value.length > 0
         } else if (field === 'password') {
             test = value.length >= 3
@@ -90,11 +94,14 @@ const Register = () => {
         <div className='register-wrapper'>
             <span className='register-title'>{compTexts.Register_title}</span>
             <div className='register-fields'>
-                <InputField label={compTexts.Register_firstName}>
+                {/* <InputField label={compTexts.Register_firstName}>
                     <input id={'register-first_name'} value={inputs.first_name} onChange={handleInputs} ref={firstNameFocus.ref} />
                 </InputField>
                 <InputField label={compTexts.Register_lastName}>
                     <input id={'register-last_name'} value={inputs.last_name} onChange={handleInputs} ref={lastNameFocus.ref} />
+                </InputField> */}
+                <InputField label={compTexts.Register_name}>
+                    <input id='register-name' type='text' value={inputs.name} onChange={handleInputs} ref={nameFocus.ref} />
                 </InputField>
                 <InputField label={compTexts.Register_email}>
                     <input id='register-email' type='email' value={inputs.email} onChange={handleInputs} ref={emailFocus.ref} />
