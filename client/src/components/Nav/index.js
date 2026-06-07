@@ -7,7 +7,7 @@ import { TextContext } from '../../Contexts/TextContext'
 import Icon from '../Icon'
 import SideNavLink from './SideNavLink'
 // import { TextContext } from '../../Contexts/TextContext'
-import './nav2.scss'
+import './nav.scss'
 
 const NAV_OVERLAY_ID = 'navOverlayId'
 
@@ -29,8 +29,6 @@ const SideNav = ({ links, componentClass }) => {
     useEffect(() => {
 
         const makeVisibleWrapper = (e) => {
-            console.log('hi makeVisibleWrapper');
-
             makeVisible({ event: e })
         }
 
@@ -90,7 +88,6 @@ const SideNav = ({ links, componentClass }) => {
     }
 
     const confirmLogout = () => {
-        // title, okText, cancelText, okCallback, cancelCallback
 
         const logoutCb = () => {
             logout()
@@ -124,6 +121,18 @@ const SideNav = ({ links, componentClass }) => {
 
                 <div className={`side-nav-list ${opened ? 'opened' : 'closed'}`}>
                     <button onClick={toggleNav} className='side-nav-close'>+</button>
+
+                    <div className='logged-user'>
+                        {userInfo.id ?
+                            <>
+                                <Icon type={'user'} className='logged-user-icon' />
+                                <span className='logged-user-text'>
+                                    {userInfo.email}
+                                </span>
+                            </> : ''}
+
+                    </div>
+
                     {links(compTexts).map(({ text, defaultText, path, admin, iconType }, idx) => {
 
                         if (admin && userInfo.role !== 'ADMIN') return ''

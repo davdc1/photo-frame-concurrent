@@ -11,6 +11,7 @@ const getTextsByLng = async ({ req, res }) => {
             .select('component', 'content')
             .where('lng', lng || 'eng')
 
+        // Antigravity says:
         // Express's res.send() automatically checks If-None-Match and returns 304
         // if the ETag matches, even when Cache-Control: no-store is set.
         // Deleting the header prevents the ETag comparison, guaranteeing a 200 with body.
