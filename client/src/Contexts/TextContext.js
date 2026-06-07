@@ -8,7 +8,7 @@ export const TextContext = createContext({});
 
 export const TextContextProvider = ({ children }) => {
     const [texts, setTexts] = useState({});
-    const [lng, setLng] = useState(localStorage.getItem(localStorageKeys.LANGUAGE))
+    const [lng, setLng] = useState(localStorage.getItem(localStorageKeys.LANGUAGE) || lngCodes.EN)
     const [textLoading, setTextLoading] = useState(true)
 
     useEffect(() => {
