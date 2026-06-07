@@ -8,6 +8,7 @@ const getTextsByLng = async ({ req, res }) => {
             .select('component', 'content')
             .where('lng', lng || 'eng')
 
+        res.set('Cache-Control', 'no-store')
         res.status(200).send(texts)
     } catch (error) {
         console.log('getTextsByLng', error);

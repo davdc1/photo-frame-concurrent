@@ -27,7 +27,9 @@ export const TextContextProvider = ({ children }) => {
                 obj[component] = content
             });
 
-            setTexts(obj);
+            if (Object.keys(obj).length > 0) {
+                setTexts(obj);
+            }
         } catch (error) {
             console.log('texts', error)
         } finally {
