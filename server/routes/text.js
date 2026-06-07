@@ -5,6 +5,22 @@ const { authMiddleware } = require('../utils/middleware');
 
 // router.use(authMiddleware)
 
-router.get('/', (req, res, next) => textController.getTextsByLng({ req, res, next }));
+const tempMiddle = (req, res, next) => {
+    res.on('finish', () => {
+        console.log(
+            'tempMiddle',
+            req.method,
+            req.originalUrl,
+            'status:',
+            res.statusCode,
+            'response etag:',
+            res.getHeader('ETag')
+        )
+    })
+
+    next()
+}
+
+router.get('/', tempMiddle, (req, res, next) => textController.getTextsByLng({ req, res, next }));
 
 module.exports = router;

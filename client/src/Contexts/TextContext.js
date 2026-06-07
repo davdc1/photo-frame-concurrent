@@ -21,6 +21,9 @@ export const TextContextProvider = ({ children }) => {
         try {
             setTextLoading(true)
             const res = await textService.getTextsByLng({ lng })
+
+            console.log('texts status', res.status)
+            console.log('texts data', res.data)
             const obj = {}
 
             res?.data?.forEach(({ component, content }) => {
