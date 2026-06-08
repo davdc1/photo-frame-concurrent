@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../Contexts/AuthContext'
 import { TextContext } from '../../Contexts/TextContext'
 import Login2 from '../Login2/Login2'
@@ -15,10 +15,13 @@ const UserAuth = () => {
     const compTexts = JSON.parse(texts['UserAuth'] || '{}')
     const [mode, setMode] = useState(MODES.LOGIN)
     const navigate = useNavigate()
+    const location = useLocation()
+
+    const from = location.state?.from || '/auth/photos'
 
     useEffect(() => {
         if (userInfo.id) {
-            navigate(-1)
+            navigate(from, { replace: true })
         }
     }, [])
 
