@@ -19,6 +19,24 @@ const getTextsByLng = async ({ req, res }) => {
         // delete req.headers['if-none-match']
         // res.set('Cache-Control', 'no-store')
 
+
+
+        // in order to prevent caching issue:  
+
+        // req.headers['if-none-match'] = undefined
+        // delete req.headers['if-none-match']
+
+        res.set({
+            // 'Cache-Control': 'no-store, no-cache, must-revalidate',
+            // 'Pragma': 'no-cache',
+            // 'Expires': '0',
+            // 'Etag': '',
+            'etag': false
+        })
+
+        // res.removeHeader('Etag')
+
+
         res.status(200).send(texts)
     } catch (error) {
         console.log('getTextsByLng', error);
