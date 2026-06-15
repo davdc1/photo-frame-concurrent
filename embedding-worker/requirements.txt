@@ -6,3 +6,4 @@ pinecone
 python-dotenv
 fastapi
 uvicorn
+mysql-connector-python

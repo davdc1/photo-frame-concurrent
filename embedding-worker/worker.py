@@ -5,6 +5,7 @@ from services.sqs_service import receive_messages, delete_message, parse_message
 from services.s3_service import download_image
 from services.embedding_service import generate_embedding
 from services.pinecone_service import store_embedding
+from services.db_service import update_photo_status
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,8 @@ def process_message(message):
     embedding = generate_embedding(image)
 
     store_embedding(photo_id, user_id, embedding)
+
+    update_photo_status(photo_id, "COMPLETED")
 
     delete_message(message["ReceiptHandle"])
 
@@ -47,6 +50,8 @@ def worker_loop():
                 process_message(message)
             except Exception as e:
                 logger.exception("sqs: error processing message: %s", e)
+                body = parse_message(message)
+                update_photo_status(body.get("photoId"), "FAILED")
 
 
 if __name__ == "__main__":

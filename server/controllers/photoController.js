@@ -150,10 +150,8 @@ const getSessionPhoto = async ({ req, res }) => {
 
             // next photo all-photos
             if (random) {
-                console.log('RANDOM', random);
                 nextPhoto = await getRandomUserPhoto({ user_id: req.user.id })
             } else {
-                console.log('NOT RANDOM');
                 nextPhoto = await getNextUserPhoto({ user_id: req.user.id, startAt: session.photo_id + 1 })
             }
 
@@ -502,11 +500,9 @@ const deletePhotos = async ({ req, res }) => {
             .andWhere('user_id', req.user.id)
             .delete()
 
+        // delete vectors.
         try {
-
             const vectorIds = ids.map(id => `photo_${id}`)
-
-            console.log('delete ids', vectorIds);
             await index.deleteMany({ ids: vectorIds })
         } catch (error) {
             console.log('error while deleting vectors', error);
